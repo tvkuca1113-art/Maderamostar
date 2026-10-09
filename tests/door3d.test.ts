@@ -123,3 +123,27 @@ describe('3D vrata — mehanika', () => {
     }
   }
 });
+
+describe('3D vrata — ilustrativne mjere', () => {
+  it('unesene mjere otvora mijenjaju proporcije krila bez kolizija', async () => {
+    const { illustrativeLeaf } = await import('../src/three/specs');
+    for (const product of products) {
+      for (const [w, h] of [['70', '205'], ['100', '230'], ['160', '210']]) {
+        const spec = specFor(product, { ...emptyConfig(product.id), widthCm: w, heightCm: h, handleSide: 'desno' })!;
+        const dims = illustrativeLeaf(spec.kind, w, h, false);
+        expect(dims).not.toBeNull();
+        expect(spec.leafWidth).toBeCloseTo(dims!.leafWidth, 6);
+        const door = buildDoor(spec);
+        expect(findCollisions(door, 16)).toEqual([]);
+        door.dispose();
+      }
+    }
+  });
+
+  it('„Ne znam mjere” zadržava demonstracijske proporcije', () => {
+    const hrast = products.find((p) => p.id === 'hrast-furnir-h')!;
+    const spec = specFor(hrast, { ...emptyConfig(), widthCm: '100', heightCm: '230', dimsUnknown: true })!;
+    expect(spec.leafWidth).toBe(0.8);
+    expect(spec.leafHeight).toBe(2);
+  });
+});

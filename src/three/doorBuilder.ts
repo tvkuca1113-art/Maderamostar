@@ -1,5 +1,13 @@
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { oakTexture } from './textures';
+
+/** Stvarne PBR teksture (učitava ih viewer). Bez njih (npr. u testovima) koriste se boje. */
+export interface TextureKit {
+  oak?: { map: THREE.Texture; normalMap: THREE.Texture; roughnessMap: THREE.Texture };
+  floor?: { map: THREE.Texture; normalMap: THREE.Texture; roughnessMap: THREE.Texture };
+  plaster?: THREE.Texture;
+}
 
 /**
  * Proceduralna, ilustrativna geometrija vrata. Nije proizvodni nacrt.
@@ -71,22 +79,63 @@ const JAMB_FLUSH = 0.006; // skriveni aluminijski okvir
 const ARCH_W = 0.075;
 const ARCH_T = 0.018;
 const WALL_W = 7;
-const WALL_H = 2.75;
+const WALL_H = 3.0;
 const HANDLE_Y = 1.05; // visina kvake od dna krila
 const HANDLE_INSET = 0.065; // os kvake od slobodnog ruba
+
+/** Hrastova tekstura pokriva približno 0,43 × 0,82 m plohe (isječak originalne fotografije). */
+const OAK_TILE_U = 0.43;
+const OAK_TILE_V = 0.82;
 
 class Materials {
   private list: THREE.Material[] = [];
   private textures: THREE.Texture[] = [];
+
+  constructor(private kit: TextureKit = {}) {}
 
   track<T extends THREE.Material>(m: T): T {
     this.list.push(m);
     return m;
   }
 
-  /** Materijal za plohu određene veličine; za hrast prilagođava gustoću godova. */
+  private tex(src: THREE.Texture, repeatX: number, repeatY: number, rotate: boolean) {
+    const t = src.clone();
+    t.wrapS = THREE.MirroredRepeatWrapping;
+    t.wrapT = THREE.MirroredRepeatWrapping;
+    t.repeat.set(repeatX, repeatY);
+    t.center.set(0.5, 0.5);
+    t.rotation = rotate ? Math.PI / 2 : 0;
+    t.needsUpdate = true;
+    this.textures.push(t);
+    return t;
+  }
+
+  /** Materijal za plohu određene veličine; za hrast prilagođava gustoću i smjer godova. */
   surface(look: Look, faceW: number, faceH: number, grain: 'vertical' | 'horizontal' = 'vertical') {
     if (look.kind === 'oak') {
+      const oak = this.kit.oak;
+      if (oak) {
+        // Vodoravni godovi: tekstura bez rotacije. Uspravni: rotacija 90°, pa se ponavljanje zamjenjuje.
+        const vertical = grain === 'vertical';
+        const rx = vertical ? faceW / OAK_TILE_V : faceW / OAK_TILE_U;
+        const ry = vertical ? faceH / OAK_TILE_U : faceH / OAK_TILE_V;
+        return this.track(
+          new THREE.MeshPhysicalMaterial({
+            // Blagi topli ton: nadoknađuje ACES tonsko mapiranje, bliže medenoj nijansi s fotografije.
+            color: new THREE.Color(0.93, 0.8, 0.64),
+            map: this.tex(oak.map, rx, ry, vertical),
+            normalMap: this.tex(oak.normalMap, rx, ry, vertical),
+            normalScale: new THREE.Vector2(0.45, 0.45),
+            roughnessMap: this.tex(oak.roughnessMap, rx, ry, vertical),
+            roughness: 1,
+            clearcoat: 0.18,
+            clearcoatRoughness: 0.45,
+            sheen: 0.2,
+            sheenRoughness: 0.6,
+            sheenColor: new THREE.Color('#f2d2a8'),
+          }),
+        );
+      }
       const base = oakTexture(grain);
       if (!base) return this.track(new THREE.MeshStandardMaterial({ color: '#C08E5C', roughness: 0.6 }));
       const tex = base.clone();
@@ -96,21 +145,66 @@ class Materials {
       this.textures.push(tex);
       return this.track(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55, metalness: 0 }));
     }
-    return this.track(new THREE.MeshStandardMaterial({ color: look.color, roughness: look.roughness ?? 0.5, metalness: 0 }));
+    // Lakirane plohe: satenski lak s blagim slojem laka (clearcoat) za realne odsjaje.
+    return this.track(
+      new THREE.MeshPhysicalMaterial({
+        color: look.color,
+        roughness: look.roughness ?? 0.42,
+        metalness: 0,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.32,
+      }),
+    );
   }
 
   color(color: string, roughness = 0.5, metalness = 0) {
     return this.track(new THREE.MeshStandardMaterial({ color, roughness, metalness }));
   }
 
+  metal(color: string, metalness: number) {
+    return this.track(new THREE.MeshStandardMaterial({ color, metalness, roughness: metalness > 0.5 ? 0.22 : 0.48, envMapIntensity: 1.3 }));
+  }
+
+  wall(color: string) {
+    const n = this.kit.plaster;
+    return this.track(
+      new THREE.MeshStandardMaterial({
+        color,
+        roughness: 0.94,
+        normalMap: n ? this.tex(n, 6, 3, false) : null,
+        normalScale: new THREE.Vector2(0.35, 0.35),
+      }),
+    );
+  }
+
+  floor() {
+    const f = this.kit.floor;
+    if (!f) return this.color('#e7dfd2', 0.75);
+    const r = (WALL_W * 2) / 1.2;
+    const rz = 8 / 1.2;
+    const mk = (t: THREE.Texture) => {
+      const c = t.clone();
+      c.wrapS = THREE.RepeatWrapping;
+      c.wrapT = THREE.RepeatWrapping;
+      c.repeat.set(r, rz);
+      c.needsUpdate = true;
+      this.textures.push(c);
+      return c;
+    };
+    return this.track(
+      new THREE.MeshStandardMaterial({ map: mk(f.map), normalMap: mk(f.normalMap), roughnessMap: mk(f.roughnessMap), roughness: 1, envMapIntensity: 0.9 }),
+    );
+  }
+
   glass() {
     return this.track(
       new THREE.MeshPhysicalMaterial({
-        color: '#eef4f5',
-        roughness: 0.08,
+        color: '#f2f7f7',
+        roughness: 0.03,
         metalness: 0,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.16,
+        envMapIntensity: 2,
         side: THREE.DoubleSide,
         depthWrite: false,
       }),
@@ -123,9 +217,16 @@ class Materials {
   }
 }
 
-/** Kutija zadana minimalnim i maksimalnim koordinatama (lakše za čitanje od centra i veličine). */
+/**
+ * Kutija zadana minimalnim i maksimalnim koordinatama. Dovoljno debele kutije dobijaju
+ * blago zaobljene rubove (2–3 mm), što daje realne odsjaje na bridovima krila i okvira.
+ */
 function box(name: string, x0: number, x1: number, y0: number, y1: number, z0: number, z1: number, mat: THREE.Material) {
-  const geo = new THREE.BoxGeometry(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0));
+  const w = Math.abs(x1 - x0);
+  const h = Math.abs(y1 - y0);
+  const d = Math.abs(z1 - z0);
+  const min = Math.min(w, h, d);
+  const geo = min >= 0.012 ? new RoundedBoxGeometry(w, h, d, 2, Math.min(0.003, min * 0.25)) : new THREE.BoxGeometry(w, h, d);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
   mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
@@ -181,7 +282,17 @@ function slab(name: string, w: number, h: number, t: number, holes: Hole[], mat:
   shape.lineTo(x0, y0 + h);
   shape.lineTo(x0, y0);
   shape.holes = holes.map(holePath);
-  const geo = new THREE.ExtrudeGeometry(shape, { depth: t, bevelEnabled: false, curveSegments: 24 });
+  // Bevel ide prema van, pa je obris uvučen za veličinu bevela: vanjske mjere ostaju tačne.
+  const b = 0.0018;
+  const inner = new THREE.Shape();
+  inner.moveTo(x0 + b, y0 + b);
+  inner.lineTo(x0 + w - b, y0 + b);
+  inner.lineTo(x0 + w - b, y0 + h - b);
+  inner.lineTo(x0 + b, y0 + h - b);
+  inner.lineTo(x0 + b, y0 + b);
+  inner.holes = shape.holes;
+  const geo = new THREE.ExtrudeGeometry(inner, { depth: t - 2 * b, bevelEnabled: true, bevelSize: b, bevelThickness: b, bevelSegments: 2, curveSegments: 24 });
+  geo.translate(0, 0, b);
   planarUV(geo, x0, y0, w, h);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
@@ -222,37 +333,71 @@ function architravePiece(name: string, length: number, dir: 1 | -1, rounded: boo
   return mesh;
 }
 
-/** Kvaka s rozetom i rozetom ključa; lever pokazuje prema baglamama. */
+/** Rozeta s oborenim rubom (okretanjem profila), okrenuta prema +z. */
+function rosetteGeo(r: number, depth: number) {
+  const pts = [
+    new THREE.Vector2(0, 0),
+    new THREE.Vector2(r, 0),
+    new THREE.Vector2(r, depth * 0.45),
+    new THREE.Vector2(r * 0.86, depth),
+    new THREE.Vector2(0, depth),
+  ];
+  const g = new THREE.LatheGeometry(pts, 40);
+  g.rotateX(Math.PI / 2);
+  return g;
+}
+
+/** Kvaka s rozetom i rozetom ključa; ručica je blago savijena i pokazuje prema baglamama. */
 function buildHandle(name: string, mats: Materials, color: string, metal: number, towardHinge: 1 | -1, t: number) {
   const g = new THREE.Group();
   g.name = name;
-  const mat = mats.color(color, metal > 0.5 ? 0.28 : 0.45, metal);
-  const dark = mats.color('#2a2a2a', 0.6, 0.2);
+  const mat = mats.metal(color, metal);
+  const dark = mats.color('#1d1d1d', 0.6, 0.2);
   for (const side of [1, -1] as const) {
     const faceZ = side > 0 ? t : 0;
-    const rosette = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.009, 32), mat);
+    const rosette = new THREE.Mesh(rosetteGeo(0.026, 0.009), mat);
     rosette.name = `${name}-rozeta`;
-    rosette.rotation.x = Math.PI / 2;
-    rosette.position.set(0, 0, faceZ + side * 0.0045);
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.05, 20), mat);
+    rosette.position.set(0, 0, faceZ);
+    rosette.scale.z = side;
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.011, 0.05, 24), mat);
     neck.rotation.x = Math.PI / 2;
     neck.position.set(0, 0, faceZ + side * 0.03);
-    const lever = new THREE.Mesh(new THREE.CapsuleGeometry(0.0085, 0.12, 6, 16), mat);
+    const path = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(towardHinge * 0.035, 0.001, side * 0.004),
+      new THREE.Vector3(towardHinge * 0.085, -0.003, side * 0.007),
+      new THREE.Vector3(towardHinge * 0.128, -0.009, side * 0.004),
+    ]);
+    const lever = new THREE.Mesh(new THREE.TubeGeometry(path, 32, 0.0088, 16, false), mat);
     lever.name = `${name}-ručica`;
-    lever.rotation.z = Math.PI / 2;
-    lever.position.set(towardHinge * 0.064, 0, faceZ + side * 0.055);
-    const keyRose = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.008, 28), mat);
-    keyRose.rotation.x = Math.PI / 2;
-    keyRose.position.set(0, -0.09, faceZ + side * 0.004);
+    lever.position.set(0, 0, faceZ + side * 0.055);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.0088, 16, 12), mat);
+    tip.position.set(towardHinge * 0.128, -0.009, faceZ + side * 0.059);
+    const keyRose = new THREE.Mesh(rosetteGeo(0.02, 0.008), mat);
+    keyRose.position.set(0, -0.09, faceZ);
+    keyRose.scale.z = side;
     const keyHole = new THREE.Mesh(new THREE.CylinderGeometry(0.0045, 0.0045, 0.002, 12), dark);
     keyHole.rotation.x = Math.PI / 2;
     keyHole.position.set(0, -0.09, faceZ + side * 0.0085);
-    [rosette, neck, lever, keyRose, keyHole].forEach((m) => {
+    [rosette, neck, lever, tip, keyRose, keyHole].forEach((m) => {
       m.castShadow = true;
       g.add(m);
     });
   }
   return g;
+}
+
+/** Baglame (ležajevi) na osi okretanja; ne ulaze u provjeru kolizija jer su dio spoja krila i štoka. */
+function addHinges(pivot: THREE.Group, mats: Materials, color: string, metal: number, leafHeight: number) {
+  const mat = mats.metal(color, metal);
+  for (const y of [0.22, leafHeight - 0.24]) {
+    const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.0065, 0.0065, 0.11, 20), mat);
+    hinge.name = 'baglama';
+    hinge.userData.noCollide = true;
+    hinge.position.set(0, y, 0);
+    hinge.castShadow = true;
+    pivot.add(hinge);
+  }
 }
 
 /** Ugrađeni prihvat za klizna vrata. */
@@ -351,7 +496,9 @@ function buildLeaf(spec: DoorSpec, mats: Materials, index: number, w: number, ha
       break;
     }
     case 'arched-glass': {
-      const hole: Hole = { kind: 'arch', x0: 0.17, x1: w - 0.17, y0: 1.04, yShoulder: 1.66, yPeak: 1.78 };
+      // Položaji su zadani za krilo od 2,00 m i skaliraju se s visinom krila.
+      const k = h / 2;
+      const hole: Hole = { kind: 'arch', x0: 0.17, x1: w - 0.17, y0: 1.04 * k, yShoulder: 1.66 * k, yPeak: 1.78 * k };
       leaf.add(slab(`${n}-ploca`, w, h, t, [hole], plainMat));
       const glassGeo = new THREE.ShapeGeometry(holeShape(hole), 24);
       const glass = new THREE.Mesh(glassGeo, mats.glass());
@@ -360,7 +507,7 @@ function buildLeaf(spec: DoorSpec, mats: Materials, index: number, w: number, ha
       leaf.add(glass);
       // Tri dekorativne linije na staklu, kao na fotografiji.
       const lineMat = mats.color('#9a7a52', 0.4, 0.5);
-      [1.2, 1.34, 1.48].forEach((y, i) => {
+      [1.2 * k, 1.34 * k, 1.48 * k].forEach((y, i) => {
         leaf.add(box(`${n}-ukras${i}`, 0.175, w - 0.175, y - 0.006, y + 0.006, t / 2 + 0.003, t / 2 + 0.005, lineMat));
         leaf.add(box(`${n}-ukras${i}-z`, 0.175, w - 0.175, y - 0.006, y + 0.006, t / 2 - 0.005, t / 2 - 0.003, lineMat));
       });
@@ -425,8 +572,8 @@ function shade(hex: string, amount: number): string {
   return `#${c.getHexString()}`;
 }
 
-export function buildDoor(spec: DoorSpec): BuiltDoor {
-  const mats = new Materials();
+export function buildDoor(spec: DoorSpec, kit?: TextureKit): BuiltDoor {
+  const mats = new Materials(kit);
   const root = new THREE.Group();
   root.name = 'vrata';
   const staticGroup = new THREE.Group();
@@ -447,7 +594,7 @@ export function buildDoor(spec: DoorSpec): BuiltDoor {
   const holeW = openW + 2 * jamb;
   const holeH = openH + jamb;
 
-  const wallMat = mats.color(spec.wallColor, 0.92);
+  const wallMat = mats.wall(spec.wallColor);
   const frameMat = mats.surface(spec.frameLook, jamb, openH, 'vertical');
   const frameMatH = mats.surface(spec.frameLook, openW, jamb, 'horizontal');
   const flushFrame = mats.color('#3a3a3a', 0.5, 0.4);
@@ -463,7 +610,12 @@ export function buildDoor(spec: DoorSpec): BuiltDoor {
   staticGroup.add(box('stok-d', openW / 2, holeW / 2, 0, holeH, -wallT, 0, jm));
   staticGroup.add(box('stok-g', -openW / 2, openW / 2, openH, holeH, -wallT, 0, jmh));
   // Pod (tanka ploča ispod y = 0, služi i za provjeru kolizije).
-  staticGroup.add(box('pod', -WALL_W, WALL_W, -0.05, 0, -4, 4, mats.color('#e7dfd2', 0.75)));
+  staticGroup.add(box('pod', -WALL_W, WALL_W, -0.05, 0, -4, 4, mats.floor()));
+  // Sokl (podna lajsna) uz zid, s obje strane otvora.
+  const skirtMat = mats.color(new THREE.Color(spec.wallColor).offsetHSL(0, 0, -0.04).getStyle(), 0.6);
+  const skirtEdge = flush || spec.architrave === 'none' ? holeW / 2 : openW / 2 + ARCH_W;
+  staticGroup.add(box('sokl-l', -WALL_W / 2, -skirtEdge, 0, 0.08, 0, 0.012, skirtMat));
+  staticGroup.add(box('sokl-d', skirtEdge, WALL_W / 2, 0, 0.08, 0, 0.012, skirtMat));
 
   // Lajsne na prednjoj strani zida.
   if (spec.architrave !== 'none' && !flush) {
@@ -480,6 +632,14 @@ export function buildDoor(spec: DoorSpec): BuiltDoor {
     top.rotation.set(0, 0, Math.PI / 2);
     top.position.set(openW / 2 + ARCH_W, openH, 0);
     staticGroup.add(left, right, top);
+    // Lajsne i na stražnjoj strani zida (vidljive iz pogleda „druga strana”).
+    [left, right, top].forEach((piece) => {
+      const back = piece.clone();
+      back.name = `${piece.name}-z`;
+      back.position.z = -wallT;
+      back.scale.z = -1;
+      staticGroup.add(back);
+    });
   }
 
   const rigs: LeafRig[] = [];
@@ -530,6 +690,7 @@ export function buildDoor(spec: DoorSpec): BuiltDoor {
     leaf.position.set(hingeLeft ? 0 : -lw, 0, 0);
     pivot.add(leaf);
     root.add(pivot);
+    if (!flush) addHinges(pivot, mats, spec.handleColor, spec.handleMetal, spec.leafHeight);
     rigs.push({ pivot, type: 'rotate', direction: hingeLeft ? 1 : -1, max: MAX_SWING_RAD });
   }
 

@@ -49,8 +49,9 @@ describe('Stanja 3D prikaza', () => {
     let s = run(initialViewerState('hrast', true, true), { type: 'firstFrame', session: 1 });
     s = run(s, { type: 'fail', session: s.session, reason: 'context-lost' });
     expect(s).toMatchObject({ status: 'error', reason: 'context-lost' });
-    // Nema automatskog ponavljanja: tick ništa ne mijenja.
+    // Nema automatskog ponavljanja: ni tick ni nova promjena izbora (activate) ne pokreću 3D.
     expect(run(s, { type: 'tick', ms: 250, counting: true })).toEqual(s);
+    expect(run(s, { type: 'activate' })).toEqual(s);
     const retried = run(s, { type: 'retry' });
     expect(retried.status).toBe('loading');
     expect(retried.session).toBe(s.session + 1);

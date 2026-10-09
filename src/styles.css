@@ -443,108 +443,6 @@ textarea {
   }
 }
 
-/* ---------- Hero ---------- */
-.hero {
-  position: relative;
-  background: #efe3d3;
-}
-.hero__stage {
-  position: relative;
-  /* Visina prati ekran, da planer ispod ostane blizu; vrh i dno vrata se ne režu. */
-  /* Najmanje 92 % prirodne visine slike, da cijela vrata (5–89 % visine) uvijek ostanu u kadru. */
-  height: clamp(560px, max(51.8vw, min(56.3vw, calc(100vh - var(--header-h) - 96px))), 1100px);
-  height: clamp(560px, max(51.8vw, min(56.3vw, calc(100svh - var(--header-h) - 96px))), 1100px);
-  overflow: hidden;
-}
-.hero__media img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 72% 45%;
-}
-.hero__text {
-  position: relative;
-  z-index: 1;
-  max-width: calc(var(--content) + 2 * var(--gutter));
-  margin: 0 auto;
-  padding: clamp(32px, 5vw, 80px) var(--gutter) 48px;
-}
-@media (min-width: 768px) and (max-width: 1279px) {
-  /* Mirna svijetla ploha iza teksta kad je biljka bliže naslovu. */
-  .hero__stage::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(90deg, rgb(248 242 233 / 92%) 0%, rgb(248 242 233 / 80%) 34%, rgb(248 242 233 / 0%) 56%);
-    pointer-events: none;
-  }
-}
-.hero__text > * {
-  max-width: 560px;
-}
-.hero__title {
-  font-size: clamp(52px, 6vw, 86px);
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.98;
-  margin: 16px 0 20px;
-}
-.hero__lead {
-  font-size: clamp(19px, 1.6vw, 23px);
-  line-height: 1.4;
-  color: #3a3833;
-  max-width: 470px;
-}
-.hero__service {
-  margin-top: 10px;
-  font-size: 15px;
-  font-weight: 650;
-  color: #57544c;
-}
-.hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 26px;
-}
-.hero__note {
-  position: absolute;
-  right: 16px;
-  bottom: 12px;
-  z-index: 1;
-  font-size: 13px;
-  color: #4d4a43;
-  background: rgb(247 244 238 / 82%);
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-.hero__below {
-  background: var(--canvas);
-}
-.hero__below-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 32px;
-  padding-top: 18px;
-  padding-bottom: 6px;
-}
-.hero__below .style-picker {
-  margin-top: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 18px;
-}
-.hero__below .style-picker__title,
-.hero__below .style-picker__active {
-  margin: 0;
-}
-
 .style-picker {
   margin-top: 30px;
 }
@@ -600,132 +498,6 @@ textarea {
 }
 .style-picker__active strong {
   color: var(--ink);
-}
-
-@media (min-width: 768px) and (max-width: 1100px) {
-  .hero__text > * {
-    max-width: 440px;
-  }
-  .hero__title {
-    font-size: 54px;
-  }
-}
-
-/* Telefon u položenom položaju: kompaktan prvi ekran s vidljivom akcijom. */
-@media (max-height: 560px) and (orientation: landscape) {
-  .hero__stage {
-    height: max(300px, calc(100vh - var(--header-h)));
-    height: max(300px, calc(100svh - var(--header-h)));
-  }
-  .hero__text {
-    padding-top: 20px;
-  }
-  .hero__title {
-    font-size: 40px;
-    margin: 6px 0 10px;
-  }
-  .hero__lead {
-    font-size: 17px;
-  }
-  .hero__actions {
-    margin-top: 14px;
-  }
-  .hero .eyebrow {
-    display: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .hero {
-    /* Ton zida s vrha ilustracije, za slučaj da je ekran viši od slike. */
-    background: linear-gradient(90deg, #d6c5b2 0%, #bea891 55%, #ae977d 100%);
-    --hero-h: clamp(540px, calc(100vh - var(--header-h)), 820px);
-    --hero-h: clamp(540px, calc(100svh - var(--header-h)), 820px);
-    --text-zone: 236px;
-    /* Mjerilo slike: vrata (840 px izvornika) staju između tekstualne zone i poda. */
-    --s: calc((var(--hero-h) - var(--text-zone) - 36px) / 840);
-  }
-  .hero__stage {
-    height: var(--hero-h);
-  }
-  .hero__media img {
-    inset: auto;
-    top: calc(var(--text-zone) - var(--s) * 465);
-    right: 0;
-    left: auto;
-    width: auto;
-    min-width: 100%;
-    height: calc(var(--s) * 1536);
-    object-fit: cover;
-    object-position: right top;
-    /* Kratak prelaz samo na rubu slike, kada je ekran viši od kompozicije. */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 40px);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 40px);
-  }
-  .hero__text {
-    position: absolute;
-    inset: 0 0 auto 0;
-    padding: 14px 20px 0;
-  }
-  .hero__title {
-    font-size: clamp(36px, 10.6vw, 44px);
-    margin: 0 0 8px;
-    line-height: 1;
-  }
-  .hero__lead {
-    font-size: 17px;
-    line-height: 1.35;
-    max-width: 330px;
-  }
-  .hero__actions {
-    margin-top: 14px;
-  }
-  .hero__actions .btn {
-    min-height: 50px;
-    font-size: 16px;
-    padding: 0 22px;
-  }
-  .hero .eyebrow {
-    display: none;
-  }
-  .hero__note {
-    position: static;
-    background: none;
-    padding: 0;
-    color: var(--muted);
-  }
-  .hero__below-inner {
-    padding: 16px 20px 4px;
-    display: grid;
-    gap: 14px;
-  }
-  .hero__below-inner > .btn {
-    width: 100%;
-  }
-  .hero__below .style-picker {
-    display: block;
-  }
-  .hero__below .style-picker__title {
-    margin-bottom: 8px;
-  }
-  .hero__below .style-picker__active {
-    margin-top: 8px;
-  }
-  .style-picker__list {
-    justify-content: space-between;
-    gap: 6px;
-  }
-  .style-swatch {
-    min-width: 0;
-    flex: 1;
-    text-align: center;
-    line-height: 1.25;
-  }
-}
-@media (max-width: 359px) {
-  .hero {
-    --text-zone: 252px;
-  }
 }
 
 /* ---------- Polja ---------- */
@@ -1900,8 +1672,8 @@ textarea {
     padding: 20px 18px;
   }
   .viewer__stage {
-    height: clamp(280px, 46vh, 360px);
-    height: clamp(280px, 46svh, 360px);
+    height: clamp(320px, 54vh, 460px);
+    height: clamp(320px, 54svh, 460px);
   }
   .form-grid {
     grid-template-columns: 1fr 1fr;
@@ -2628,4 +2400,646 @@ textarea {
   main {
     padding-bottom: 0;
   }
+}
+
+/* ---------- 3D: oznaka prikaza, pogledi, cijeli ekran ---------- */
+.viewer__badge {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 2;
+  display: grid;
+  gap: 1px;
+  max-width: calc(100% - 24px);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: rgb(255 255 255 / 86%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--muted);
+  pointer-events: none;
+}
+.viewer__badge strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+.viewer__views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+.chip--sm {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+.viewer.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: var(--canvas);
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 10px;
+}
+.viewer.is-fullscreen .viewer__stage {
+  height: auto;
+  min-height: 0;
+}
+
+/* ---------- Ulaz „Otvori vrata” ---------- */
+.entry {
+  position: relative;
+  height: 260vh;
+  height: 260svh;
+  background: #efe3d3;
+}
+.entry--static {
+  height: 100vh;
+  height: 100svh;
+}
+.entry__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  container-type: size;
+  --angle: 0deg;
+  --shade: 0;
+  --text: 1;
+  --light: 0.55;
+  --zoom: 1;
+  --tx: 0px;
+  --ty: 0px;
+  --veil: 0;
+  /* Krilo u izvornoj slici (px): 1012–1320 × 92–837 od 1672 × 941. */
+  --leaf-l: 60.53%;
+  --leaf-t: 9.78%;
+  --leaf-w: 18.42%;
+  --leaf-h: 79.17%;
+  --leaf-img-w: 542.9%;
+  --leaf-img-h: 126.3%;
+  --leaf-img-l: -328.6%;
+  --leaf-img-t: -12.35%;
+}
+.entry__scene {
+  position: absolute;
+  /* Ponaša se kao object-fit: cover s pozicijom 72 % / 45 %, ali kao kutija u koju stanu i krilo i otvor. */
+  width: max(100cqw, 177.68cqh);
+  height: max(100cqh, 56.28cqw);
+  left: calc((100cqw - max(100cqw, 177.68cqh)) * 0.72);
+  top: calc((100cqh - max(100cqh, 56.28cqw)) * 0.45);
+  transform-origin: calc(var(--leaf-l) + var(--leaf-w) / 2) calc(var(--leaf-t) + var(--leaf-h) / 2);
+  transform: translate(var(--tx), var(--ty)) scale(var(--zoom));
+  perspective: 1600px;
+  perspective-origin: calc(var(--leaf-l) + var(--leaf-w) / 2) 50%;
+  will-change: transform;
+}
+.entry__photo img,
+.entry__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.entry__doorway {
+  position: absolute;
+  left: var(--leaf-l);
+  top: var(--leaf-t);
+  width: var(--leaf-w);
+  height: var(--leaf-h);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 70% at 50% 42%, rgb(255 252 246 / var(--light)) 0%, rgb(247 240 230 / 1) 55%, #eadfce 100%),
+    #f7f4ee;
+  box-shadow: inset 0 0 24px rgb(80 55 30 / 25%);
+}
+.entry__doorway::after {
+  /* Pod druge prostorije. */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  background: linear-gradient(#e6dccd, #d9ccb9);
+}
+.entry__beyond {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.entry__beyond img {
+  width: 82%;
+  height: auto;
+  opacity: 0.9;
+  transform: translateY(-12%);
+}
+.entry__leaf {
+  position: absolute;
+  left: var(--leaf-l);
+  top: var(--leaf-t);
+  width: var(--leaf-w);
+  height: var(--leaf-h);
+  overflow: hidden;
+  /* Baglame su desno (kvaka lijevo, kao na originalnim Hrast furnir H vratima); krilo se otvara od posmatrača. */
+  transform-origin: right center;
+  transform: rotateY(var(--angle));
+  will-change: transform;
+  box-shadow: 0 0 0 0 transparent;
+}
+.entry__leaf-photo,
+.entry__leaf-photo img {
+  position: absolute;
+  display: block;
+  width: var(--leaf-img-w);
+  height: var(--leaf-img-h);
+  left: var(--leaf-img-l);
+  top: var(--leaf-img-t);
+  max-width: none;
+}
+.entry__leaf-photo img {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.entry__leaf-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(40 25 10 / 0.55), rgb(40 25 10 / 0.15));
+  opacity: var(--shade);
+}
+.entry__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--canvas);
+  opacity: var(--veil);
+  pointer-events: none;
+}
+.entry__text {
+  position: relative;
+  z-index: 2;
+  max-width: calc(var(--content) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: calc(var(--header-h) + clamp(28px, 6vh, 80px)) var(--gutter) 0;
+  opacity: var(--text);
+  transform: translateY(calc((1 - var(--text)) * -24px));
+}
+.entry[data-hidden-text] .entry__text {
+  visibility: hidden;
+}
+.entry__text > * {
+  max-width: 560px;
+}
+.entry__title {
+  font-size: clamp(50px, 5.8vw, 84px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  margin: 16px 0 20px;
+}
+.entry__lead {
+  font-size: clamp(18px, 1.45vw, 21px);
+  line-height: 1.45;
+  color: #3a3833;
+  max-width: 450px;
+}
+.entry__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+.entry__hint {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #3e3a33;
+  cursor: pointer;
+  opacity: var(--text);
+}
+.entry__hint-line {
+  width: 2px;
+  height: 34px;
+  background: linear-gradient(var(--brand), transparent);
+  animation: hint 1.8s ease-in-out infinite;
+}
+@keyframes hint {
+  0% {
+    transform: scaleY(0.2);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  100% {
+    transform: scaleY(0.2);
+    transform-origin: bottom;
+  }
+}
+.entry__note {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  z-index: 2;
+  font-size: 12px;
+  color: #4d4a43;
+  background: rgb(247 244 238 / 80%);
+  padding: 3px 10px;
+  border-radius: 999px;
+  opacity: var(--text);
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .entry__sticky::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(90deg, rgb(248 242 233 / 90%) 0%, rgb(248 242 233 / 72%) 36%, rgb(248 242 233 / 0%) 58%);
+    opacity: var(--text);
+    pointer-events: none;
+  }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  .entry__title {
+    font-size: 40px;
+    margin: 6px 0 10px;
+  }
+  .entry__lead {
+    font-size: 16px;
+  }
+  .entry__actions {
+    margin-top: 14px;
+  }
+  .entry .eyebrow,
+  .entry__hint {
+    display: none;
+  }
+  .entry__text {
+    padding-top: calc(var(--header-h) + 8px);
+  }
+}
+@media (max-width: 767px) {
+  .entry {
+    background: linear-gradient(90deg, #d6c5b2 0%, #bea891 55%, #ae977d 100%);
+  }
+  .entry__sticky {
+    --text-zone: calc(var(--header-h) + 250px);
+    --s: max(calc((100cqh - var(--text-zone) - 70px) / 840), calc(100cqw / 1024));
+    /* Krilo u mobilnoj slici (px): 487–818 × 512–1300 od 1024 × 1536. */
+    --leaf-l: 47.56%;
+    --leaf-t: 33.33%;
+    --leaf-w: 32.32%;
+    --leaf-h: 51.3%;
+    --leaf-img-w: 309.4%;
+    --leaf-img-h: 194.9%;
+    --leaf-img-l: -147.2%;
+    --leaf-img-t: -64.97%;
+  }
+  .entry__scene {
+    width: calc(var(--s) * 1024);
+    height: calc(var(--s) * 1536);
+    left: calc(100cqw - var(--s) * 1024);
+    top: calc(var(--text-zone) - var(--s) * 465);
+  }
+  .entry__text {
+    padding: calc(var(--header-h) + 14px) 20px 0;
+  }
+  .entry .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+  }
+  .entry__title {
+    font-size: clamp(36px, 10.4vw, 44px);
+    margin: 8px 0 10px;
+    line-height: 1;
+  }
+  .entry__lead {
+    font-size: 16px;
+    line-height: 1.4;
+    max-width: 340px;
+  }
+  .entry__actions {
+    margin-top: 14px;
+    gap: 8px;
+  }
+  .entry__actions .btn {
+    min-height: 48px;
+    font-size: 15px;
+    padding: 0 16px;
+  }
+  .entry__note {
+    right: 10px;
+    bottom: 12px;
+    font-size: 11px;
+  }
+}
+@media (max-width: 359px) {
+  .entry__sticky {
+    --text-zone: calc(var(--header-h) + 270px);
+  }
+  .entry__lead {
+    font-size: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entry__hint-line {
+    animation: none;
+  }
+}
+
+/* ---------- Dobro došli (prva sekcija iza vrata) ---------- */
+.welcome {
+  position: relative;
+  z-index: 1;
+  /* Sadržaj se pojavljuje dok kamera prolazi kroz vrata (preklapa kraj ulaza istom bojom podloge). */
+  margin-top: -32vh;
+  margin-top: -32svh;
+  padding: clamp(48px, 7vw, 96px) 0 clamp(24px, 4vw, 48px);
+}
+.entry--static + .welcome {
+  margin-top: 0;
+}
+.welcome__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: end;
+}
+.welcome__title {
+  font-size: clamp(34px, 4.4vw, 60px);
+  letter-spacing: -0.035em;
+}
+.welcome__text {
+  font-size: clamp(17px, 1.35vw, 19px);
+  color: #46433d;
+}
+.welcome__text p + p {
+  margin-top: 12px;
+}
+.pillars {
+  list-style: none;
+  margin: clamp(32px, 5vw, 56px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2.4vw, 32px);
+}
+.pillar {
+  border-top: 2px solid var(--ink);
+  padding-top: 18px;
+}
+.pillar__num {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--brand);
+  letter-spacing: 0.1em;
+}
+.pillar h3 {
+  font-size: 22px;
+  margin: 8px 0 8px;
+  letter-spacing: -0.015em;
+}
+.pillar p {
+  color: var(--muted);
+}
+.welcome__start {
+  margin-top: clamp(32px, 5vw, 56px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 32px;
+  padding: 22px 26px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.welcome__start .style-picker {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+.welcome__start .style-picker__title,
+.welcome__start .style-picker__active {
+  margin: 0;
+}
+.welcome__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (max-width: 899px) {
+  .welcome__head,
+  .pillars {
+    grid-template-columns: 1fr;
+  }
+  .welcome__start {
+    padding: 18px;
+  }
+  .welcome__start .style-picker {
+    display: block;
+  }
+  .welcome__start .style-picker__title {
+    margin-bottom: 8px;
+  }
+  .welcome__actions,
+  .welcome__actions .btn {
+    width: 100%;
+  }
+}
+
+/* ---------- Zaglavlje preko početne fotografije ---------- */
+.site-header {
+  position: fixed;
+  left: 0;
+  right: 0;
+}
+.site-header.is-over-hero:not(.is-scrolled) {
+  background: linear-gradient(rgb(247 240 230 / 55%), rgb(247 240 230 / 0%));
+  border-bottom-color: transparent;
+}
+.brand__logo {
+  display: block;
+  height: 46px;
+  width: auto;
+}
+@media (max-width: 767px) {
+  .brand__logo {
+    height: 38px;
+  }
+}
+.site-footer__brand .site-footer__logo {
+  width: 150px;
+  height: auto;
+  border-radius: 0;
+}
+
+/* Broj vrata i brze mjere u konfiguratoru */
+.stepper-qty {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--canvas);
+}
+.stepper-qty.has-error {
+  border-color: var(--brand);
+}
+.stepper-qty__label {
+  font-weight: 700;
+  font-size: 15px;
+}
+.stepper-qty__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: end;
+}
+.stepper-qty__value {
+  min-width: 34px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+}
+.stepper-qty__hint {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--muted);
+}
+.presets {
+  display: grid;
+  gap: 10px;
+}
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.preset-row__label {
+  font-size: 14px;
+  font-weight: 650;
+  min-width: 108px;
+}
+.preset-row__unit {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Telefon: kompaktan 3D prikaz ostaje vidljiv dok birate opcije ispod njega. */
+@media (max-width: 1023px) {
+  .viewer:not(.is-fullscreen) {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    background: var(--canvas);
+    padding: 8px 0 8px;
+    margin: -8px 0 0;
+    box-shadow: 0 10px 18px -16px rgb(36 35 31 / 45%);
+  }
+  .viewer:not(.is-fullscreen) .viewer__note {
+    display: none;
+  }
+  .viewer:not(.is-fullscreen) .viewer__views {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .viewer:not(.is-fullscreen) .viewer__views .chip {
+    flex: none;
+  }
+}
+@media (max-width: 767px) {
+  .viewer:not(.is-fullscreen) .viewer__stage {
+    height: clamp(220px, 36vh, 320px);
+    height: clamp(220px, 36svh, 320px);
+  }
+  .viewer:not(.is-fullscreen) .viewer__toolbar {
+    gap: 6px;
+  }
+  .viewer:not(.is-fullscreen) .viewer__name {
+    font-size: 15px;
+  }
+  .viewer:not(.is-fullscreen) .segmented button {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+  .viewer:not(.is-fullscreen) .viewer__controls {
+    gap: 6px;
+  }
+  .viewer:not(.is-fullscreen) .viewer__controls .btn--sm {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+  .viewer:not(.is-fullscreen) .icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .viewer:not(.is-fullscreen) .viewer__badge {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  .viewer:not(.is-fullscreen) .viewer__badge span:last-child {
+    display: none;
+  }
+}
+@media (max-height: 560px) {
+  .viewer:not(.is-fullscreen) {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .viewer:not(.is-fullscreen) .viewer__reset,
+  .viewer:not(.is-fullscreen) .viewer__zoom-btn {
+    display: none;
+  }
+  .viewer:not(.is-fullscreen) .viewer__views {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  .viewer:not(.is-fullscreen) .viewer__zoom {
+    margin-left: 0;
+    order: 3;
+  }
+}
+
+/* Planer sada stoji ispod sekcije „Dobro došli”, kao samostalna kartica. */
+@media (min-width: 768px) {
+  .calc__bar {
+    border-top: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+}
+.calc {
+  padding-top: clamp(16px, 2vw, 24px);
 }

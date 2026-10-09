@@ -9,7 +9,7 @@ import { DEMO_DIMENSIONS } from './dimensions';
 
 const WHITE: Look = { kind: 'color', color: '#f3f2ee', roughness: 0.45 };
 const OAK: Look = { kind: 'oak' };
-const WALL = '#e9e2d7';
+const WALL = '#d8cdbd';
 const SILVER = { handleColor: '#c8cacc', handleMetal: 0.9 };
 
 const base = {
@@ -132,7 +132,7 @@ const SPECS: Record<string, DoorSpec> = {
     leafLook: { kind: 'color', color: '#c5c8c7', roughness: 0.6 },
     frameLook: { kind: 'color', color: '#c5c8c7', roughness: 0.6 },
     architrave: 'none',
-    wallColor: '#cfd2d1',
+    wallColor: '#bfc3c2',
   },
   'klizna-staklo': {
     ...base,
@@ -166,7 +166,29 @@ export function hasProceduralSpec(productId: string): boolean {
 }
 
 /** Spaja osnovnu postavku zapisa s željama iz konfiguratora (samo za ilustraciju). */
-export function specFor(product: Product, cfg: Pick<DoorConfig, 'finish' | 'handle' | 'handleSide'>): DoorSpec | null {
+type SpecInput = Pick<DoorConfig, 'finish' | 'handle' | 'handleSide'> & Partial<Pick<DoorConfig, 'widthCm' | 'heightCm' | 'dimsUnknown'>>;
+
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+const num = (raw?: string) => {
+  const v = Number((raw ?? '').trim().replace(',', '.'));
+  return Number.isFinite(v) && v > 0 ? v : null;
+};
+
+/**
+ * Približne dimenzije krila iz unesenih mjera otvora, samo za ilustraciju proporcija.
+ * Nije proizvodno pravilo: tačne mjere krila određuje Madera nakon mjerenja.
+ */
+export function illustrativeLeaf(kind: DoorSpec['kind'], widthCm?: string, heightCm?: string, unknown?: boolean) {
+  const w = unknown ? null : num(widthCm);
+  const h = unknown ? null : num(heightCm);
+  if (!w || !h || w < 40 || w > 300 || h < 150 || h > 300) return null;
+  const leafHeight = clamp((h - 4) / 100, 1.8, 2.6);
+  if (kind === 'double') return { leafWidth: clamp((w - 9) / 200, 0.4, 0.9), leafHeight };
+  if (kind === 'sliding') return { leafWidth: clamp((w + 8) / 200, 0.45, 1.0), leafHeight: clamp((h + 3) / 100, 1.9, 2.7) };
+  return { leafWidth: clamp((w - 7) / 100, 0.55, 1.2), leafHeight };
+}
+
+export function specFor(product: Product, cfg: SpecInput): DoorSpec | null {
   const s = SPECS[product.id];
   if (!s || !product.viewer.proceduralPreviewAllowed) return null;
   const spec: DoorSpec = { ...s };
@@ -182,6 +204,8 @@ export function specFor(product: Product, cfg: Pick<DoorConfig, 'finish' | 'hand
     if (cfg.handleSide === 'lijevo') spec.handleSide = 'left';
     if (cfg.handleSide === 'desno') spec.handleSide = 'right';
   }
+  const dims = illustrativeLeaf(spec.kind, cfg.widthCm, cfg.heightCm, cfg.dimsUnknown);
+  if (dims) Object.assign(spec, dims);
   return spec;
 }
 

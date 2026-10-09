@@ -2,8 +2,9 @@ import { Component, lazy, Suspense, useCallback, useEffect, useReducer, useRef, 
 import { assetFor } from '../data';
 import { useMediaQuery } from '../lib/useMediaQuery';
 import { prefersReducedMotion, useUi } from '../state/ui';
-import { specFor } from '../three/specs';
-import type { ViewerApi } from '../three/DoorViewer';
+import { illustrativeLeaf, specFor } from '../three/specs';
+import { FINISHES, HANDLES, optionLabel } from '../lib/options';
+import type { ViewerApi, ViewName } from '../three/DoorViewer';
 import { hasWebGL2, initialViewerState, viewerReducer, type ViewerErrorReason } from '../three/viewerState';
 import type { DoorConfig, Product } from '../types';
 import { ProductPicture } from './Picture';
@@ -51,6 +52,8 @@ export function ViewerPanel({ product, cfg }: { product: Product; cfg: DoorConfi
   const open = openFor === product.id;
   const rootRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<ViewerApi>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [activeView, setActiveView] = useState<ViewName | null>(null);
 
   const { status, session, reason } = state;
   const webglMissing = reason === 'webgl';
@@ -59,7 +62,51 @@ export function ViewerPanel({ product, cfg }: { product: Product; cfg: DoorConfi
 
   useEffect(() => {
     dispatch({ type: 'product', productKey: product.id });
+    setActiveView(null);
   }, [product.id]);
+
+  // Promjena boje, kvake, smjera ili mjera odmah se prikazuje: iz fotografije se prelazi u 3D.
+  const wishKey = `${cfg.finish}|${cfg.handle}|${cfg.handleSide}|${cfg.widthCm}|${cfg.heightCm}|${cfg.dimsUnknown}`;
+  const firstWish = useRef(true);
+  useEffect(() => {
+    if (firstWish.current) {
+      firstWish.current = false;
+      return;
+    }
+    setNear(true);
+    dispatch({ type: 'activate' });
+  }, [wishKey]);
+
+  // Cijeli ekran: nativno gdje je podržano, inače prikaz preko cijelog prozora (npr. iPhone).
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setFullscreen(false);
+    const onFs = () => !document.fullscreenElement && setFullscreen(false);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('fullscreenchange', onFs);
+    document.body.classList.add('is-locked');
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('fullscreenchange', onFs);
+      document.body.classList.remove('is-locked');
+    };
+  }, [fullscreen]);
+
+  const toggleFullscreen = () => {
+    const el = rootRef.current;
+    if (!fullscreen) {
+      setFullscreen(true);
+      el?.requestFullscreen?.().catch(() => undefined);
+    } else {
+      setFullscreen(false);
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => undefined);
+    }
+  };
+
+  const showView = (v: ViewName) => {
+    setActiveView(v);
+    apiRef.current?.view(v);
+  };
 
   // 3D se priprema tek kad je sekcija blizu ekrana; van ekrana se render pauzira.
   useEffect(() => {
@@ -88,6 +135,10 @@ export function ViewerPanel({ product, cfg }: { product: Product; cfg: DoorConfi
   const onFail = useCallback((s: number, r: ViewerErrorReason) => dispatch({ type: 'fail', session: s, reason: r }), []);
 
   const meta = assetFor(product.image);
+  const leaf = spec ? illustrativeLeaf(spec.kind, cfg.widthCm, cfg.heightCm, cfg.dimsUnknown) : null;
+  const dimsText = leaf
+    ? `Otvor ≈ ${cfg.widthCm.replace('.', ',')} × ${cfg.heightCm.replace('.', ',')} cm (ilustrativne proporcije)`
+    : 'Demonstracijske proporcije ≈ 80 × 200 cm';
   const wishChanged = cfg.finish !== 'kao-na-fotografiji' || cfg.handle !== 'kao-na-fotografiji';
 
   const note = ready
@@ -99,7 +150,7 @@ export function ViewerPanel({ product, cfg }: { product: Product; cfg: DoorConfi
         : 'Originalna fotografija izvedbe iz objave na Maderinom profilu.';
 
   return (
-    <div className="viewer" ref={rootRef} data-status={status}>
+    <div className={`viewer${fullscreen ? ' is-fullscreen' : ''}`} ref={rootRef} data-status={status}>
       <div className="viewer__toolbar">
         <div className="segmented" role="group" aria-label="Način prikaza">
           <button
@@ -156,6 +207,16 @@ export function ViewerPanel({ product, cfg }: { product: Product; cfg: DoorConfi
             </ViewerBoundary>
           </div>
         )}
+        {ready && spec && (
+          <div className="viewer__badge" aria-live="polite">
+            <strong>{product.displayName}</strong>
+            <span>
+              {cfg.finish === 'kao-na-fotografiji' ? 'Obrada kao na fotografiji' : optionLabel(FINISHES, cfg.finish)} ·{' '}
+              {cfg.handle === 'kao-na-fotografiji' ? 'kvaka kao na fotografiji' : `${optionLabel(HANDLES, cfg.handle).toLowerCase()} kvaka`}
+            </span>
+            <span>{dimsText}</span>
+          </div>
+        )}
         {status === 'loading' && (
           <p className="viewer__loading" role="status">
             Učitavanje 3D prikaza…
@@ -180,23 +241,44 @@ export function ViewerPanel({ product, cfg }: { product: Product; cfg: DoorConfi
 
       {ready && (
         <div className="viewer__controls" role="group" aria-label="Upravljanje 3D prikazom">
-          <button type="button" className="btn btn--ghost btn--sm" onClick={() => setOpenFor(product.id)} disabled={open}>
-            Otvori vrata
+          <button type="button" className="btn btn--dark btn--sm viewer__toggle" aria-pressed={open} onClick={() => setOpenFor(open ? null : product.id)}>
+            {open ? 'Zatvori vrata' : 'Otvori vrata'}
           </button>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={() => setOpenFor(null)} disabled={!open}>
-            Zatvori vrata
-          </button>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={() => apiRef.current?.reset()}>
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm viewer__reset"
+            onClick={() => {
+              setActiveView(null);
+              apiRef.current?.reset();
+            }}
+          >
             Vrati pogled
           </button>
           <span className="viewer__zoom">
-            <button type="button" className="icon-btn" onClick={() => apiRef.current?.zoom(1)} aria-label="Približi">
+            <button type="button" className="icon-btn viewer__zoom-btn" onClick={() => apiRef.current?.zoom(1)} aria-label="Približi">
               +
             </button>
-            <button type="button" className="icon-btn" onClick={() => apiRef.current?.zoom(-1)} aria-label="Udalji">
+            <button type="button" className="icon-btn viewer__zoom-btn" onClick={() => apiRef.current?.zoom(-1)} aria-label="Udalji">
               −
             </button>
+            <button type="button" className="icon-btn" onClick={toggleFullscreen} aria-label={fullscreen ? 'Izađi iz prikaza preko cijelog ekrana' : 'Prikaz preko cijelog ekrana'}>
+              {fullscreen ? '×' : '⤢'}
+            </button>
           </span>
+          <div className="viewer__views" role="group" aria-label="Pogled">
+            {(
+              [
+                ['front', 'Ispred'],
+                ['angle', 'Iz ugla'],
+                ['handle', 'Detalj kvake'],
+                ['back', 'Druga strana'],
+              ] as [ViewName, string][]
+            ).map(([v, label]) => (
+              <button key={v} type="button" className={`chip chip--sm${activeView === v ? ' is-active' : ''}`} aria-pressed={activeView === v} onClick={() => showView(v)}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

@@ -272,3 +272,30 @@ describe('Rezervni tokovi', () => {
     expect(within(modeli).getAllByRole('article')).toHaveLength(11);
   });
 });
+
+describe('Početni ulaz i interaktivni konfigurator', () => {
+  it('početni ekran ima logo, naslov i akciju „Otvori vrata”', () => {
+    render(<App />);
+    expect(screen.getAllByRole('img', { name: 'Madera' }).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { level: 1, name: /Svaki dom počinje vratima/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Otvori vrata/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Iza dobrih vrata/ })).toBeInTheDocument();
+  });
+
+  it('broj vrata (− / +) i brze mjere ažuriraju izbor i sažetak', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const k = konf();
+    await user.click(within(k).getByRole('button', { name: 'Više vrata' }));
+    await user.click(within(k).getByRole('button', { name: 'Više vrata' }));
+    expect(screen.getByLabelText('Broj vrata')).toHaveValue('3');
+    await user.click(within(k).getByRole('button', { name: /Dalje: mjere i prostorija/ }));
+    await user.click(within(k).getByRole('button', { name: '90' }));
+    await user.click(within(k).getByRole('button', { name: '210' }));
+    expect(within(k).getByLabelText('Širina otvora (cm)')).toHaveValue('90');
+    expect(within(k).getByLabelText('Visina otvora (cm)')).toHaveValue('210');
+    await user.click(within(k).getByRole('button', { name: /Dalje: pregled/ }));
+    expect(within(k).getByText('90 × 210 cm')).toBeInTheDocument();
+    expect(within(k).getByText('3 kom.')).toBeInTheDocument();
+  });
+});
