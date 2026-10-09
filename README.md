@@ -5,6 +5,17 @@ Implementirano prema `docs/paket/CLAUDE-CODE-SUPERPROMPT.md` (verzija 2: svijetl
 
 ![Desktop](docs/screenshots/01-desktop-pocetni-ekran.jpg)
 
+![Ulaz kroz vrata](docs/screenshots/16-ulaz-kroz-vrata.jpg)
+
+## Interaktivni ulaz, realističniji 3D i bolji tok (najnovije)
+
+- **„Otvori vrata”**: početna fotografija je jedna scena s logom i menijem preko nje. Na skrol ili klik krilo se otvara oko baglama (kvaka lijevo kao na originalu), kamera prilazi otvoru i prolazi kroz vrata u sekciju „Dobro došli” (`src/components/Entry.tsx`). Krilo je isječak iste fotografije; poštuje `prefers-reduced-motion`.
+- **Originalni logo** (SVG iz paketa) u zaglavlju i podnožju.
+- **Realističniji 3D**: hrastov furnir iz Maderine originalne fotografije s normal i roughness mapama (`scripts/make-textures.py`), HDR okruženje (CC0, Poly Haven „apartment”, preko `@pmndrs/assets`), lakirane plohe s clearcoat slojem, metalne kvake s odsjajem, zaobljeni rubovi, baglame, sokl, kameni pod, meke sjene i ambijentalna sjena (N8AO).
+- **Pregled**: pogledi „Ispred”, „Iz ugla”, „Detalj kvake”, „Druga strana”, zoom i prikaz preko cijelog ekrana.
+- **Interaktivni konfigurator**: promjena obrade, kvake, smjera ili mjera odmah se prikazuje u 3D (iz fotografije se automatski prelazi u 3D); broj vrata − / +; brze standardne mjere (60–100 × 200–220 cm) i vlastite mjere mijenjaju proporcije 3D vrata (ilustrativno); na telefonu kompaktan 3D ostaje vidljiv dok birate opcije.
+- Novi tekstovi na početnoj i u sekcijama.
+
 ## Popravke nakon audita (branch `popravka-audit`)
 
 Prema `docs/audit/Madera-Audit.md` i `docs/audit/Madera-Claude-Code-Popravka.md`:
@@ -52,7 +63,7 @@ Stack: React 18 + TypeScript + Vite 6, Three.js 0.169 + React Three Fiber 8 + dr
 
 ## Provjera
 
-- `npm test` — 74 testa (uključujući stanja 3D viewera i obuhvat upita Milano 3 / Sara 1): režim A bez iznosa; režim B s kontroliranim testnim cjenovnikom (`tests/fixtures/`, ne ulazi u aplikaciju); nedostajuće stope i nepotpune mjere → „Potrebna ponuda”; tri prostorije nakon uređivanja, dupliranje, uklanjanje; „Ne znam mjere” i poruka za pogrešnu količinu; katalog → konfigurator → sažetak; kopiranje i preuzimanje; 3D: krilo/kvaka/rozeta se kreću zajedno, okvir miruje, SAT provjera kolizija za svih 11 izvedbi × 3 strane kvake (i negativni test koji dokazuje da provjera hvata koliziju); WebGL fallback + reduced motion.
+- `npm test` — 78 testova (uključujući stanja 3D viewera, obuhvat upita Milano 3 / Sara 1, ilustrativne mjere bez kolizija, ulaz i broj vrata / brze mjere): režim A bez iznosa; režim B s kontroliranim testnim cjenovnikom (`tests/fixtures/`, ne ulazi u aplikaciju); nedostajuće stope i nepotpune mjere → „Potrebna ponuda”; tri prostorije nakon uređivanja, dupliranje, uklanjanje; „Ne znam mjere” i poruka za pogrešnu količinu; katalog → konfigurator → sažetak; kopiranje i preuzimanje; 3D: krilo/kvaka/rozeta se kreću zajedno, okvir miruje, SAT provjera kolizija za svih 11 izvedbi × 3 strane kvake (i negativni test koji dokazuje da provjera hvata koliziju); WebGL fallback + reduced motion.
 - `npm run build` — TypeScript bez grešaka; početni JS ≈ 71 kB gzip, 3D dio (≈ 270 kB gzip) se učitava lijeno.
 - Vizualno pregledano u Chromiumu na 1440×900, 1024×768, 390×844 i 320×740 (bez horizontalnog skrola, bez grešaka u konzoli). Screenshotovi stvarne aplikacije: `docs/screenshots/` (početni ekran, katalog, konfigurator foto/3D, namjerna greška i gubitak konteksta, Moj izbor, upit, svih 11 modela foto vs 3D).
 

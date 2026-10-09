@@ -2,7 +2,8 @@ import { products } from './data';
 import { StoreProvider, type State } from './state/store';
 import { UiProvider } from './state/ui';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
+import { Entry } from './components/Entry';
+import { Welcome } from './components/Welcome';
 import { QuickCalculator } from './components/QuickCalculator';
 import { Catalog } from './components/Catalog';
 import { Configurator } from './components/Configurator';
@@ -24,7 +25,8 @@ export default function App({ initialState }: { initialState?: State }) {
         </a>
         <Header />
         <main id="sadrzaj">
-          <Hero />
+          <Entry />
+          <Welcome />
           <QuickCalculator />
           <Catalog />
           <Configurator />

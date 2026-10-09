@@ -15,7 +15,7 @@ export function Process() {
     <section className="section process" id="proces" aria-labelledby="proces-naslov">
       <div className="container">
         <div className="section__head">
-          <h2 id="proces-naslov">Od izbora do ugradnje.</h2>
+          <h2 id="proces-naslov">Od prve ideje do montaže.</h2>
         </div>
         <ol className="steps">
           {STEPS.map((s, i) => (
@@ -82,7 +82,7 @@ export function Contact() {
       <div className="container contact__inner">
         <div>
           <h2 id="kontakt-naslov">Koja vrata zamišljate u svom domu?</h2>
-          <p className="section__lead">Pošaljite svoj izbor i osnovne podatke za ponudu.</p>
+          <p className="section__lead">Pošaljite svoj izbor ili nas nazovite. Zajedno ćemo potvrditi mjere, izvedbu i ponudu za cijeli dom.</p>
           <div className="contact__actions">
             <button type="button" className="btn btn--primary btn--lg" onClick={() => openInquiry(state.items.length > 0 ? 'project' : 'draft')}>
               Pripremi upit

@@ -51,7 +51,7 @@ export function QuickCalculator() {
             <p className="calc__desc">
               {priced
                 ? 'Odaberite vrata i osnovne mjere za informativnu procjenu.'
-                : 'Odaberite model, količinu i mjesto. Pripremite pregled za ponudu.'}
+                : 'Za koliko prostorija tražite vrata? Unesite model, broj vrata i mjesto — pregled za ponudu je spreman u nekoliko koraka.'}
             </p>
           </div>
           <form className="calc__form" onSubmit={onSubmit} noValidate>

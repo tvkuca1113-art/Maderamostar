@@ -16,8 +16,8 @@ export function Works() {
     <section className="section works" id="radovi" aria-labelledby="radovi-naslov">
       <div className="container">
         <div className="section__head">
-          <h2 id="radovi-naslov">Vrata u stvarnim prostorima.</h2>
-          <p className="section__lead">Pogledajte primjere izvedbi objavljene na Maderinom profilu.</p>
+          <h2 id="radovi-naslov">Vrata u stvarnim domovima.</h2>
+          <p className="section__lead">Originalne fotografije izvedbi s Maderinog profila — hrast, bijela sa zlatnim detaljima, tamna sa staklom i skrivena vrata u ravnini zida.</p>
         </div>
         <ul className="works__grid">
           {WORKS.map((w, i) => {

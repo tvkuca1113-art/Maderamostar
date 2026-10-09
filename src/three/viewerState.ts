@@ -46,8 +46,8 @@ function startLoading(s: ViewerState, productKey = s.productKey): ViewerState {
 export function viewerReducer(s: ViewerState, e: ViewerEvent): ViewerState {
   switch (e.type) {
     case 'activate':
-      if (s.reason === 'webgl') return s;
-      if (s.status === 'loading' || s.status === 'ready') return s;
+      // Nakon greške 3D se ponovo pokreće samo izričitim „Pokušaj ponovo” (retry).
+      if (s.status !== 'photo') return s;
       return startLoading(s);
     case 'retry':
       if (s.reason === 'webgl') return s;

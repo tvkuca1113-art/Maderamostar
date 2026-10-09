@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="site-footer" id="footer">
       <div className="container site-footer__inner">
         <div className="site-footer__brand">
-          <img src="/images/madera/logo-instagram.jpg" alt="Madera logo" width={56} height={56} loading="lazy" />
+          <img className="site-footer__logo" src="/images/brand/madera-logo-dark.svg" alt="Madera" width={1232} height={490} loading="lazy" />
           <p>{siteConfig.serviceText}</p>
         </div>
         <nav aria-label="Navigacija u podnožju">

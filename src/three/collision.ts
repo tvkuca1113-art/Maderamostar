@@ -56,7 +56,7 @@ export function obbIntersects(a: OBB, b: OBB): boolean {
 function meshesOf(obj: THREE.Object3D): THREE.Mesh[] {
   const out: THREE.Mesh[] = [];
   obj.traverse((o) => {
-    if ((o as THREE.Mesh).isMesh) out.push(o as THREE.Mesh);
+    if ((o as THREE.Mesh).isMesh && !o.userData.noCollide) out.push(o as THREE.Mesh);
   });
   return out;
 }

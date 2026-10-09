@@ -14,24 +14,27 @@ export const calcLabel = () => (isPricingActive(pricing) ? 'Kalkulator' : 'Plane
 export function Brand() {
   return (
     <a href="#top" className="brand" aria-label="Madera, na početak stranice">
-      <span className="brand__word" aria-hidden="true">
-        <span className="brand__m">M</span>adera
-      </span>
-      <span className="brand__sub" aria-hidden="true">
-        Sobna vrata · Mostar
-      </span>
+      <img className="brand__logo" src="/images/brand/madera-logo-light.svg" alt="Madera" width={1232} height={490} />
     </a>
   );
 }
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
+  // Preko početne fotografije zaglavlje je prozirno; puna pozadina tek kad se uđe u stranicu.
+  const [overHero, setOverHero] = useState(true);
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      const hero = document.getElementById('top');
+      const heroBottom = hero ? hero.getBoundingClientRect().bottom : 0;
+      const inHero = heroBottom > 90;
+      setOverHero(inHero);
+      setScrolled(!inHero && window.scrollY > 8);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -58,7 +61,7 @@ export function Header() {
   const close = () => setOpen(false);
 
   return (
-    <header className={`site-header${scrolled || open ? ' is-scrolled' : ''}`}>
+    <header className={`site-header${scrolled || open ? ' is-scrolled' : ''}${overHero ? ' is-over-hero' : ''}`}>
       <div className="site-header__inner">
         <Brand />
         <nav className="site-nav" aria-label="Glavna navigacija">

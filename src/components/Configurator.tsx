@@ -57,6 +57,44 @@ function SwatchGroup<T extends string>({
   );
 }
 
+function QuantityStepper({ value, onChange, error }: { value: string; onChange: (v: string) => void; error?: string }) {
+  const n = Number.parseInt(value, 10);
+  const q = Number.isFinite(n) && n > 0 ? n : 1;
+  return (
+    <div className={`stepper-qty${error ? ' has-error' : ''}`}>
+      <span className="stepper-qty__label" id="kfg-kolicina-brzo-oznaka">
+        Broj ovih vrata
+      </span>
+      <div className="stepper-qty__controls" role="group" aria-labelledby="kfg-kolicina-brzo-oznaka">
+        <button type="button" className="icon-btn" aria-label="Manje vrata" disabled={q <= 1} onClick={() => onChange(String(Math.max(1, q - 1)))}>
+          −
+        </button>
+        <output className="stepper-qty__value" aria-live="polite">
+          {Number.isFinite(n) && n > 0 ? n : value || '—'}
+        </output>
+        <button type="button" className="icon-btn" aria-label="Više vrata" disabled={q >= 99} onClick={() => onChange(String(Math.min(99, q + 1)))}>
+          +
+        </button>
+      </div>
+      <span className="stepper-qty__hint">Isti model za više prostorija? Povećajte broj ili kasnije duplirajte stavku.</span>
+    </div>
+  );
+}
+
+function PresetRow({ label, values, current, onPick }: { label: string; values: string[]; current: string; onPick: (v: string) => void }) {
+  return (
+    <div className="preset-row" role="group" aria-label={`${label}: brzi izbor (cm)`}>
+      <span className="preset-row__label">{label}</span>
+      {values.map((v) => (
+        <button key={v} type="button" className={`chip chip--sm${current.trim() === v ? ' is-active' : ''}`} aria-pressed={current.trim() === v} onClick={() => onPick(v)}>
+          {v}
+        </button>
+      ))}
+      <span className="preset-row__unit">cm · ili upišite svoju mjeru</span>
+    </div>
+  );
+}
+
 const STEP2_FIELDS: (keyof ConfigErrors)[] = ['widthCm', 'heightCm', 'quantity', 'wallCm'];
 
 export function Configurator() {
@@ -113,8 +151,8 @@ export function Configurator() {
     <section className="section configurator" id="konfigurator" aria-labelledby="konfigurator-naslov">
       <div className="container">
         <div className="section__head">
-          <h2 id="konfigurator-naslov">Vaša vrata, u svakom detalju.</h2>
-          <p className="section__lead">Istražite izgled, odaberite detalje i dodajte vrata u Moj izbor.</p>
+          <h2 id="konfigurator-naslov">Složite svoja vrata.</h2>
+          <p className="section__lead">Promijenite boju, kvaku, smjer i mjere — 3D prikaz se mijenja odmah. Otvorite vrata, priđite kvaki ili ih pogledajte s druge strane.</p>
         </div>
 
         <div className="configurator__grid">
@@ -178,6 +216,7 @@ export function Configurator() {
                     ))}
                   </div>
                 </fieldset>
+                <QuantityStepper value={draft.quantity} onChange={(quantity) => set({ quantity })} error={shown.quantity} />
                 <p className="config-hint">Obrade i kvake su želje za ponudu. Dostupnost za odabrani model potvrđuje Madera.</p>
                 <SwatchGroup<FinishId>
                   name="obrada"
@@ -238,7 +277,18 @@ export function Configurator() {
                 <h3 className="config-step__title" tabIndex={-1}>
                   2. Mjere i prostorija
                 </h3>
-                <p className="config-hint">Približne mjere otvora pomažu ponudi. Tačne mjere potvrđuju se prije izrade.</p>
+                <p className="config-hint">Približne mjere otvora pomažu ponudi i mijenjaju proporcije 3D prikaza. Tačne mjere potvrđuju se prije izrade.</p>
+                {!draft.dimsUnknown && (
+                  <div className="presets">
+                    <PresetRow
+                      label="Širina otvora"
+                      values={['60', '70', '80', '90', '100']}
+                      current={draft.widthCm}
+                      onPick={(widthCm) => set({ widthCm })}
+                    />
+                    <PresetRow label="Visina otvora" values={['200', '205', '210', '220']} current={draft.heightCm} onPick={(heightCm) => set({ heightCm })} />
+                  </div>
+                )}
                 <div className="form-grid">
                   <TextField
                     id="kfg-sirina"

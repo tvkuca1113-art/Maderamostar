@@ -68,8 +68,8 @@ export function Catalog() {
       <div className="container">
         <div className="section__head">
           <p className="eyebrow eyebrow--section">Modeli vrata</p>
-          <h2 id="modeli-naslov">Pronađite vrata za svoj prostor.</h2>
-          <p className="section__lead">Od toplog hrastovog furnira do čistih bijelih ploha i staklenih izvedbi.</p>
+          <h2 id="modeli-naslov">Pronađite vrata koja pristaju vašem prostoru.</h2>
+          <p className="section__lead">Topli hrastov furnir, čiste bijele plohe, staklo s mrežom, klizna i skrivena vrata. Odaberite model i odmah ga pogledajte u 3D konfiguratoru.</p>
         </div>
         <div className="filters" role="group" aria-label="Filtriraj vrata">
           {CATALOG_FILTERS.map((f) => (
