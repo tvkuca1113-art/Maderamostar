@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "hrast-furnir-h",
+      "file": "public/images/madera/model-hrast-furnir-h.jpg",
+      "webPath": "/images/madera/model-hrast-furnir-h.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Hrastova sobna vrata Hrast furnir H sa srebrnom kvakom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CQ0VQmptcM7/",
+      "placements": [
+        "katalog",
+        "detalj-modela",
+        "nasi-radovi"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "c382b281b8f2a4996fa30976a00326e3ed40d7620729767c6e9ad17f2aff59a5"
+    },
+    {
+      "id": "patras-bijeli",
+      "file": "public/images/madera/model-patras-bijeli.jpg",
+      "webPath": "/images/madera/model-patras-bijeli.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Bijela sobna vrata Patras s vodoravnim linijama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5Q8mENEAC/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "71c4fdde6eee7aba0917d917af624f7d3d99ed0e1b2663c2995d3472c9951b43"
+    },
+    {
+      "id": "olimpus-bijeli",
+      "file": "public/images/madera/model-olimpus-bijeli.jpg",
+      "webPath": "/images/madera/model-olimpus-bijeli.jpg",
+      "type": "original_instagram_photo",
+      "width": 1200,
+      "height": 900,
+      "alt": "Ugrađena bijela vrata Olimpus s ravnim lajsnama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5y5HqtfyR/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "a3442c1d1dd6d02fe981205bcdddc2020746d3b1dfa4a4f75bd9838e62866620"
+    },
+    {
+      "id": "milano-bijeli",
+      "file": "public/images/madera/model-milano-bijeli.jpg",
+      "webPath": "/images/madera/model-milano-bijeli.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Bijela sobna vrata Milano s diskretnim vodoravnim linijama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5Rf94tj56/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "a1606541d104fab5723e0a0ddf8933744e267036d8e1becf0b7e61aa7c16c58f"
+    },
+    {
+      "id": "sara-bijeli",
+      "file": "public/images/madera/model-sara-bijeli.jpg",
+      "webPath": "/images/madera/model-sara-bijeli.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Bijela vrata Sara s dvije profilirane pravougaone plohe.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5RXyBNUgL/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "44a23fff1e9ddf336b294fb78e13ba8997b4b771478df851c9d4331bdce2d1ed"
+    },
+    {
+      "id": "anatolija-staklo",
+      "file": "public/images/madera/model-anatolija-staklo.jpg",
+      "webPath": "/images/madera/model-anatolija-staklo.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Vrata Anatolija sa staklenim poljem i zakrivljenim gornjim rubom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CP_AQO4N2rB/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "5f66ce1a2796570c77ae8713969f82d5e8c9ba6226a2755d619025eaff835272"
+    },
+    {
+      "id": "bijela-zlatni-detalji",
+      "file": "public/images/madera/izvedba-bijela-zlatni-detalji.jpg",
+      "webPath": "/images/madera/izvedba-bijela-zlatni-detalji.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1688,
+      "alt": "Dvoja bijela sobna vrata sa zlatnim okomitim linijama i zlatnim kvakama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/DMIecy-NY_P/",
+      "placements": [
+        "katalog",
+        "detalj-modela",
+        "nasi-radovi"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "b51b2bb4b17bbb1431bfda39c76e2432eeedc608bce0992561d42277af8d031b"
+    },
+    {
+      "id": "dvokrilna-staklo-mreza",
+      "file": "public/images/madera/izvedba-dvokrilna-staklo-mreza.jpg",
+      "webPath": "/images/madera/izvedba-dvokrilna-staklo-mreza.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Bijela dvokrilna vrata sa staklenim poljima, mrežom i crnom kvakom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/Cj26lKMMmn4/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "d6be1b88fb2cd7c635a1833bca104c69396131972b191a7c48d2d65bea78264d"
+    },
+    {
+      "id": "antracit-staklo-mreza",
+      "file": "public/images/madera/izvedba-antracit-staklo-mreza.jpg",
+      "webPath": "/images/madera/izvedba-antracit-staklo-mreza.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Tamna jednokrilna vrata sa staklenim poljem podijeljenim mrežom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/C8FJ3WTtwhf/",
+      "placements": [
+        "katalog",
+        "detalj-modela",
+        "nasi-radovi"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "b95a8f7bde55a17223ed05defe76790a7c9479f5ef639e966383619061ff8446"
+    },
+    {
+      "id": "skrivena-siva",
+      "file": "public/images/madera/izvedba-skrivena-siva.jpg",
+      "webPath": "/images/madera/izvedba-skrivena-siva.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Siva skrivena sobna vrata u ravnini zida s crnom ručkom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/DH6TQoKs7LH/",
+      "placements": [
+        "katalog",
+        "detalj-modela",
+        "nasi-radovi"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "fedc6c67134f2dd22648ee193e2ad9222a9260c51e83058981644181593c8790"
+    },
+    {
+      "id": "klizna-staklo",
+      "file": "public/images/madera/izvedba-klizna-staklo.jpg",
+      "webPath": "/images/madera/izvedba-klizna-staklo.jpg",
+      "type": "original_instagram_photo",
+      "width": 1440,
+      "height": 1800,
+      "alt": "Klizna vrata sa staklenim poljima i uvučenim prihvatom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CP567RRNR9Y/",
+      "placements": [
+        "katalog",
+        "detalj-modela"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "objectPosition": "50% 50%",
+        "background": "#F1EEE7",
+        "lightbox": "uncropped original"
+      },
+      "note": "Originalna fotografija javne objave; boja na fotografiji nije specifikacija RAL nijanse.",
+      "sha256": "db869488e3543fa8db74fd61df2c5e7926fa1ff64970c291fb055a5033f3bdc6"
+    },
+    {
+      "id": "hero-desktop",
+      "file": "public/images/madera/hero-hrast-desktop.png",
+      "webPath": "/images/madera/hero-hrast-desktop.png",
+      "type": "generated_ambient_illustration",
+      "width": 1672,
+      "height": 941,
+      "alt": "Ilustracija ambijenta s hrastovim sobnim vratima prema Maderinom modelu Hrast furnir H.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CQ0VQmptcM7/",
+      "placements": [
+        "hero-desktop",
+        "poziv-na-upit"
+      ],
+      "display": {
+        "objectFit": "contain at natural aspect ratio",
+        "objectPosition": "50% 50%",
+        "background": "#EEE7DB"
+      },
+      "note": "AI ambijent izveden iz originalne fotografije vrata. Nije fotografija izvedenog Maderinog projekta. Ne koristiti u rubrici Naši radovi.",
+      "sha256": "647c1e1acffd36bc9fbb66016af5461df0c96eb621695153c28772dc9a1a4e6a"
+    },
+    {
+      "id": "hero-mobile",
+      "file": "public/images/madera/hero-hrast-mobile.png",
+      "webPath": "/images/madera/hero-hrast-mobile.png",
+      "type": "generated_ambient_illustration",
+      "width": 1024,
+      "height": 1536,
+      "alt": "Ilustracija svijetlog ambijenta s hrastovim vratima, prilagođena uspravnom prikazu.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CQ0VQmptcM7/",
+      "placements": [
+        "hero-mobile"
+      ],
+      "display": {
+        "objectFit": "contain at natural aspect ratio",
+        "objectPosition": "50% 50%",
+        "background": "#EEE7DB"
+      },
+      "note": "AI ambijent izveden iz originalne fotografije vrata. Nije fotografija izvedenog Maderinog projekta. Ne koristiti u rubrici Naši radovi.",
+      "sha256": "7f2281d5f29f635f0bde271db03d7697cd70e31fbfa9438ec7d50737b42470af"
+    },
+    {
+      "id": "brand-logo",
+      "file": "public/images/madera/logo-instagram.jpg",
+      "webPath": "/images/madera/logo-instagram.jpg",
+      "type": "original_profile_avatar",
+      "width": 150,
+      "height": 150,
+      "alt": "Madera",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/",
+      "placements": [
+        "footer-brand"
+      ],
+      "display": {
+        "objectFit": "contain",
+        "maxRenderedWidthCssPx": 64
+      },
+      "note": "Originalni mali raster logo na crnoj podlozi. Za velik službeni logo pribaviti SVG ili kvalitetniji izvor.",
+      "sha256": "d7c00c66e56afc856a736aec8b0942082c907bdef244cb9b9c31e0f00d5aa069"
+    },
+    {
+      "id": "selected-design",
+      "file": "reference/verzija-2-odabrani-izgled.png",
+      "webPath": null,
+      "type": "generated_ui_reference",
+      "width": 1448,
+      "height": 1086,
+      "alt": "Odabrani izgled Madera stranice na računaru i mobitelu.",
+      "sourceUrl": null,
+      "placements": [
+        "developer-reference-only"
+      ],
+      "display": {
+        "objectFit": "contain"
+      },
+      "note": "Referenca rasporeda. Ne ugraditi prikaz laptopa ili mobitela u samu web stranicu.",
+      "sha256": "6bcde79608aca0c6c6856ec56ec3d41d49f461aa1035f7d4e1346a42b4ff5a1d"
+    }
+  ]
+}

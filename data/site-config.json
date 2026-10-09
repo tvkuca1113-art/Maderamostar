@@ -1,0 +1,44 @@
+{
+  "brand": "Madera",
+  "language": "bs",
+  "serviceText": "Izrada, doprema i montaža sobnih vrata na području Hercegovine.",
+  "locationText": "Mostar, Opine b.b.",
+  "phoneDisplay": "061/275-936",
+  "phoneHref": "tel:+38761275936",
+  "instagramUrl": "https://www.instagram.com/madera.mostar/",
+  "whatsapp": {
+    "enabled": false,
+    "phoneE164Digits": "38761275936",
+    "requiresOwnerConfirmation": true
+  },
+  "contactForm": {
+    "endpoint": null,
+    "email": null,
+    "mode": "prepare_inquiry_only"
+  },
+  "pricing": {
+    "currency": "BAM",
+    "approved": false,
+    "mode": "request_quote",
+    "sourceFile": "data/pricing-template.json"
+  },
+  "catalog": {
+    "mode": "preview_for_review",
+    "productionApprovalRequired": true
+  },
+  "viewer": {
+    "mode": "procedural_illustration",
+    "exactModelsProvided": false,
+    "autostartOnMobile": false
+  },
+  "privacy": {
+    "policyUrl": null,
+    "analyticsEnabled": false,
+    "thirdPartyEmbedEnabled": false
+  },
+  "hours": null,
+  "warranty": null,
+  "leadTime": null,
+  "experienceYears": null,
+  "testimonials": []
+}

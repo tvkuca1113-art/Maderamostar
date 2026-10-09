@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "currency": "BAM",
+  "approvedByOwner": false,
+  "approvedAt": null,
+  "validUntil": null,
+  "taxMode": null,
+  "items": [
+    {
+      "productId": "hrast-furnir-h",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "patras-bijeli",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "olimpus-bijeli",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "milano-bijeli",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "sara-bijeli",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "anatolija-staklo",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "bijela-zlatni-detalji",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "dvokrilna-staklo-mreza",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "antracit-staklo-mreza",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "skrivena-siva",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    },
+    {
+      "productId": "klizna-staklo",
+      "basePriceBAM": null,
+      "baseIncludes": [],
+      "finishSurchargesBAM": {},
+      "hardwareSurchargesBAM": {},
+      "dimensionRules": null,
+      "installationPerDoorBAM": null
+    }
+  ],
+  "delivery": {
+    "approved": false,
+    "mode": null,
+    "zones": []
+  },
+  "measurement": {
+    "feeBAM": null,
+    "deductedFromOrder": null
+  },
+  "rounding": {
+    "decimals": 2
+  },
+  "missingRateBehavior": "return requires_quote, never zero",
+  "partialTotalBehavior": "mark known subtotal and unknown lines; never show as final total",
+  "disclaimer": "Procjena je informativna. Konačna ponuda nakon potvrde mjera, izvedbe, dopreme i montaže."
+}

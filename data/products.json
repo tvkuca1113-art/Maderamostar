@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "currency": "BAM",
+  "researchDate": "2026-10-08",
+  "status": "research_catalog_for_review",
+  "products": [
+    {
+      "id": "hrast-furnir-h",
+      "displayName": "Hrast furnir H",
+      "recordType": "named_model",
+      "category": "Furnir",
+      "description": "Hrastov furnir s vodoravnim smjerom godova na središnjem dijelu i usklađenim drvenim okvirom.",
+      "image": "/images/madera/model-hrast-furnir-h.jpg",
+      "imageAlt": "Hrastova sobna vrata Hrast furnir H sa srebrnom kvakom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CQ0VQmptcM7/",
+      "sourceCaption": "Model vrata: Hrast furnir H",
+      "observedFeatures": [
+        "hrast-furnir",
+        "srebrna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "left",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": true,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "patras-bijeli",
+      "displayName": "Patras",
+      "recordType": "named_model",
+      "category": "Moderna",
+      "description": "Bijela sobna vrata s vodoravnim linijama i jednostavnim okvirom.",
+      "image": "/images/madera/model-patras-bijeli.jpg",
+      "imageAlt": "Bijela sobna vrata Patras s vodoravnim linijama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5Q8mENEAC/",
+      "sourceCaption": "Model vrata: Patras bijelo",
+      "observedFeatures": [
+        "bijela",
+        "srebrna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "right",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": true,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "olimpus-bijeli",
+      "displayName": "Olimpus",
+      "recordType": "named_model",
+      "category": "Moderna",
+      "description": "Bijela izvedba s ravnim lajsnama, prikazana u ugrađenom ambijentu.",
+      "image": "/images/madera/model-olimpus-bijeli.jpg",
+      "imageAlt": "Ugrađena bijela vrata Olimpus s ravnim lajsnama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5y5HqtfyR/",
+      "sourceCaption": "Model vrata: Olimpus bijelo, sa ravnim lajsnama!",
+      "observedFeatures": [
+        "bijela",
+        "ravne-lajsne",
+        "srebrna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "left",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": true,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "milano-bijeli",
+      "displayName": "Milano",
+      "recordType": "named_model",
+      "category": "Moderna",
+      "description": "Bijela vrata s diskretnim vodoravnim ritmom na plohi.",
+      "image": "/images/madera/model-milano-bijeli.jpg",
+      "imageAlt": "Bijela sobna vrata Milano s diskretnim vodoravnim linijama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5Rf94tj56/",
+      "sourceCaption": "Model vrata: Milano",
+      "observedFeatures": [
+        "bijela",
+        "srebrna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "left",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": true,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "sara-bijeli",
+      "displayName": "Sara",
+      "recordType": "named_model",
+      "category": "Klasična",
+      "description": "Klasična bijela vrata s dvije profilirane pravougaone plohe.",
+      "image": "/images/madera/model-sara-bijeli.jpg",
+      "imageAlt": "Bijela vrata Sara s dvije profilirane pravougaone plohe.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CO5RXyBNUgL/",
+      "sourceCaption": "Model vrata: Sara",
+      "observedFeatures": [
+        "bijela",
+        "srebrna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "left",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": true,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "anatolija-staklo",
+      "displayName": "Anatolija",
+      "recordType": "named_model",
+      "category": "Staklo",
+      "description": "Izvedba sa staklenim poljem, zakrivljenim gornjim rubom i profiliranim donjim panelom.",
+      "image": "/images/madera/model-anatolija-staklo.jpg",
+      "imageAlt": "Vrata Anatolija sa staklenim poljem i zakrivljenim gornjim rubom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CP_AQO4N2rB/",
+      "sourceCaption": "Model vrata: Anatolija",
+      "observedFeatures": [
+        "bijela",
+        "stakleno-polje",
+        "srebrna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "right",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": true,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "bijela-zlatni-detalji",
+      "displayName": "Bijela vrata sa zlatnim detaljima",
+      "recordType": "custom_example",
+      "category": "Po želji",
+      "description": "Bijele plohe sa tri zlatne okomite linije i zlatnim kvakama u prikazanoj izvedbi.",
+      "image": "/images/madera/izvedba-bijela-zlatni-detalji.jpg",
+      "imageAlt": "Dvoja bijela sobna vrata sa zlatnim okomitim linijama i zlatnim kvakama.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/DMIecy-NY_P/",
+      "sourceCaption": "Po želji kupca. Bijelo sa zlatnim detaljima",
+      "observedFeatures": [
+        "bijela",
+        "zlatne-linije",
+        "zlatna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "varies",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": false,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "dvokrilna-staklo-mreza",
+      "displayName": "Dvokrilna vrata sa staklom i mrežom",
+      "recordType": "custom_example",
+      "category": "Dvokrilna",
+      "description": "Bijela dvokrilna izvedba sa staklenim poljima, mrežom i crnom kvakom.",
+      "image": "/images/madera/izvedba-dvokrilna-staklo-mreza.jpg",
+      "imageAlt": "Bijela dvokrilna vrata sa staklenim poljima, mrežom i crnom kvakom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/Cj26lKMMmn4/",
+      "sourceCaption": "Sobna vrata po želji kupca Skrivene baglame Magnetne brave Hrom lajsne Mreža na staklu Crne ručke",
+      "observedFeatures": [
+        "bijela",
+        "dvokrilna",
+        "staklo-mreza",
+        "crna-kvaka",
+        "skrivene-baglame",
+        "magnetna-brava"
+      ],
+      "observedHandleSideInPhoto": "center",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": false,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "antracit-staklo-mreza",
+      "displayName": "Tamna vrata sa staklom i mrežom",
+      "recordType": "custom_example",
+      "category": "Staklo",
+      "description": "Tamna jednokrilna vrata s velikim staklenim poljem i mrežom.",
+      "image": "/images/madera/izvedba-antracit-staklo-mreza.jpg",
+      "imageAlt": "Tamna jednokrilna vrata sa staklenim poljem podijeljenim mrežom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/C8FJ3WTtwhf/",
+      "sourceCaption": "",
+      "observedFeatures": [
+        "tamna-boja",
+        "staklo-mreza",
+        "tamna-kvaka"
+      ],
+      "observedHandleSideInPhoto": "right",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": false,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "skrivena-siva",
+      "displayName": "Skrivena vrata",
+      "recordType": "custom_example",
+      "category": "Skrivena",
+      "description": "Vrata u ravnini zida. U opisu ove objave navedena je elektronska ručka na otisak prsta.",
+      "image": "/images/madera/izvedba-skrivena-siva.jpg",
+      "imageAlt": "Siva skrivena sobna vrata u ravnini zida s crnom ručkom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/DH6TQoKs7LH/",
+      "sourceCaption": "Skrivena vrata sa el ručkom na otisak prsta",
+      "observedFeatures": [
+        "siva",
+        "skrivena-vrata",
+        "elektronska-rucka-otisak-prsta"
+      ],
+      "observedHandleSideInPhoto": "right",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": false,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    },
+    {
+      "id": "klizna-staklo",
+      "displayName": "Klizna vrata sa staklom",
+      "recordType": "custom_example",
+      "category": "Klizna",
+      "description": "Klizna izvedba po želji kupca, prikazana sa staklenim poljima i uvučenim prihvatom.",
+      "image": "/images/madera/izvedba-klizna-staklo.jpg",
+      "imageAlt": "Klizna vrata sa staklenim poljima i uvučenim prihvatom.",
+      "sourceUrl": "https://www.instagram.com/madera.mostar/p/CP567RRNR9Y/",
+      "sourceCaption": "Klizna vrata po želji kupca",
+      "observedFeatures": [
+        "klizna",
+        "stakleno-polje",
+        "uvuceni-prihvat"
+      ],
+      "observedHandleSideInPhoto": "recessed",
+      "photoIsOriginal": true,
+      "manufacturerModelNameConfirmedInCaption": false,
+      "currentAvailability": "requires_confirmation",
+      "approvedForCatalog": false,
+      "approvedPriceBAM": null,
+      "dimensions": {
+        "openingWidthCm": null,
+        "openingHeightCm": null,
+        "leafWidthCm": null,
+        "leafHeightCm": null,
+        "wallThicknessCm": null
+      },
+      "manufacturingOptions": {
+        "approvedFinishIds": [],
+        "approvedHardwareIds": [],
+        "approvedDimensionRules": null
+      },
+      "viewer": {
+        "exactGlbPath": null,
+        "proceduralPreviewAllowed": true,
+        "productionGeometryVerified": false,
+        "label": "Ilustrativni 3D prikaz"
+      },
+      "commercialNote": "Primjer iz objavljene ponude. Aktuelne opcije i dostupnost potvrđuje Madera.",
+      "sourceCaptionType": "short_business_excerpt_without_hashtags"
+    }
+  ]
+}
