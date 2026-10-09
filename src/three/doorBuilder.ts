@@ -121,8 +121,8 @@ class Materials {
         const ry = vertical ? faceH / OAK_TILE_U : faceH / OAK_TILE_V;
         return this.track(
           new THREE.MeshPhysicalMaterial({
-            // Blagi topli ton: nadoknađuje ACES tonsko mapiranje, bliže medenoj nijansi s fotografije.
-            color: new THREE.Color(0.93, 0.8, 0.64),
+            // Topli medeni ton kao na originalnoj fotografiji hrasta.
+            color: new THREE.Color(0.97, 0.83, 0.66),
             map: this.tex(oak.map, rx, ry, vertical),
             normalMap: this.tex(oak.normalMap, rx, ry, vertical),
             normalScale: new THREE.Vector2(0.45, 0.45),
@@ -301,30 +301,46 @@ function slab(name: string, w: number, h: number, t: number, holes: Hole[], mat:
   return mesh;
 }
 
-/** Profil lajsne (presjek) izvučen duž dužine L. Unutrašnji rub je na x = 0, vanjski na x = dir·ARCH_W. */
-function architravePiece(name: string, length: number, dir: 1 | -1, rounded: boolean, mat: THREE.Material) {
-  if (!rounded) {
-    // Geometrija je pomjerena tako da je ishodište na unutrašnjem rubu, kao kod zaobljenog profila.
-    const geo = new THREE.BoxGeometry(ARCH_W, length, ARCH_T);
-    geo.translate((dir * ARCH_W) / 2, length / 2, ARCH_T / 2);
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.name = name;
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    return mesh;
-  }
+/**
+ * Profil lajsne (presjek) izvučen duž dužine L, s krajevima rezanim pod 45° (gerung) kao kod stolarske izvedbe.
+ * Unutrašnji rub je na x = 0, vanjski na x = dir·ARCH_W. miterStart/miterEnd: koji kraj se reže.
+ */
+function architravePiece(name: string, length: number, dir: 1 | -1, rounded: boolean, mat: THREE.Material, miterStart = false, miterEnd = true) {
+  const W = dir * ARCH_W;
+  const T = ARCH_T;
   const s = new THREE.Shape();
   s.moveTo(0, 0);
-  s.lineTo(dir * ARCH_W, 0);
-  s.lineTo(dir * ARCH_W, ARCH_T * 0.32);
-  s.quadraticCurveTo(dir * ARCH_W, ARCH_T, dir * ARCH_W * 0.42, ARCH_T);
-  s.lineTo(0, ARCH_T);
+  s.lineTo(W, 0);
+  if (rounded) {
+    // Mekano zaobljen vanjski rub, ravno lice i mali skošeni rub prema otvoru (sjena uz štok).
+    s.lineTo(W, T * 0.3);
+    s.quadraticCurveTo(W, T, W * 0.58, T);
+    s.lineTo(dir * 0.004, T);
+    s.lineTo(0, T - 0.004);
+  } else {
+    // Ravna lajsna s tankim oborenim rubovima (bez oštrih, „kompjuterskih” ivica).
+    s.lineTo(W, T - 0.0015);
+    s.lineTo(W - dir * 0.0015, T);
+    s.lineTo(dir * 0.0015, T);
+    s.lineTo(0, T - 0.0015);
+  }
   s.lineTo(0, 0);
   const geo = new THREE.ExtrudeGeometry(s, { depth: length, bevelEnabled: false, curveSegments: 10 });
   geo.rotateX(Math.PI / 2);
   geo.translate(0, length, 0);
   // Nakon rotacije: x = presjek, y = dužina, z = dubina profila (prema posmatraču).
   geo.computeVertexNormals();
+  // Gerung: vanjski rub se produžuje za širinu lajsne, unutrašnji ostaje na kraju otvora.
+  const pos = geo.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    const ax = Math.abs(pos.getX(i));
+    if (miterEnd && Math.abs(y - length) < 1e-6) pos.setY(i, length + ax);
+    else if (miterStart && Math.abs(y) < 1e-6) pos.setY(i, -ax);
+  }
+  pos.needsUpdate = true;
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
   planarUV(geo, dir > 0 ? 0 : -ARCH_W, 0, ARCH_W, length);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
@@ -627,10 +643,10 @@ export function buildDoor(spec: DoorSpec, kit?: TextureKit): BuiltDoor {
     left.position.set(-openW / 2, 0, 0);
     const right = architravePiece('lajsna-d', openH, 1, rounded, archMat);
     right.position.set(openW / 2, 0, 0);
-    const top = architravePiece('lajsna-g', openW + 2 * ARCH_W, 1, rounded, archMatH);
-    // Gornja lajsna: rotacija za 90° okreće unutrašnji rub prema otvoru, a dužinu po x osi.
+    const top = architravePiece('lajsna-g', openW, 1, rounded, archMatH, true, true);
+    // Gornja lajsna: rotacija za 90° okreće unutrašnji rub prema otvoru, a dužinu po x osi; oba kraja u gerungu.
     top.rotation.set(0, 0, Math.PI / 2);
-    top.position.set(openW / 2 + ARCH_W, openH, 0);
+    top.position.set(openW / 2, openH, 0);
     staticGroup.add(left, right, top);
     // Lajsne i na stražnjoj strani zida (vidljive iz pogleda „druga strana”).
     [left, right, top].forEach((piece) => {
