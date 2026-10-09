@@ -46,7 +46,7 @@ export function MobileBar() {
       <button type="button" className="btn btn--ghost" tabIndex={hidden ? -1 : 0} onClick={() => goTo('projekt')}>
         Moj izbor{total > 0 ? ` (${total})` : ''}
       </button>
-      <button type="button" className="btn btn--primary" tabIndex={hidden ? -1 : 0} onClick={() => openInquiry('project')}>
+      <button type="button" className="btn btn--primary" tabIndex={hidden ? -1 : 0} onClick={() => openInquiry(state.items.length > 0 ? 'project' : 'draft')}>
         Zatraži ponudu
       </button>
     </div>

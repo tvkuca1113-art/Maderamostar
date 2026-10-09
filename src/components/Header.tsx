@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { pricing } from '../data';
+import { isPricingActive } from '../lib/pricing';
 
 export const NAV = [
   { href: '#modeli', label: 'Modeli' },
@@ -6,6 +8,8 @@ export const NAV = [
   { href: '#radovi', label: 'Naši radovi' },
   { href: '#kontakt', label: 'Kontakt' },
 ];
+
+export const calcLabel = () => (isPricingActive(pricing) ? 'Kalkulator' : 'Planer vrata');
 
 export function Brand() {
   return (
@@ -67,7 +71,7 @@ export function Header() {
           </ul>
         </nav>
         <a href="#kalkulator" className="btn btn--primary btn--sm site-header__cta">
-          Kalkulator
+          {calcLabel()}
           <ArrowIcon />
         </a>
         <button
@@ -94,7 +98,7 @@ export function Header() {
             ))}
             <li>
               <a href="#kalkulator" className="btn btn--primary" onClick={close}>
-                Kalkulator
+                {calcLabel()}
               </a>
             </li>
           </ul>

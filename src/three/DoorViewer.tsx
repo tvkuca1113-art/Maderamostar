@@ -20,7 +20,11 @@ interface Props {
   active: boolean;
   /** Promjena (npr. drugi model) postavlja nova vrata u zatvoren položaj bez animacije. */
   resetKey?: string;
-  onReady?: () => void;
+  /** Identitet sesije prikaza; potvrda kadra važi samo za trenutnu sesiju. */
+  session: number;
+  quality: 'high' | 'low';
+  onFirstFrame: (session: number) => void;
+  onFail: (session: number, reason: 'context-lost' | 'render') => void;
 }
 
 const AZIMUTH = 0.32;
@@ -58,6 +62,7 @@ function ProceduralDoor({ spec, open, reducedMotion }: { spec: DoorSpec; open: b
     invalidate();
   });
 
+  door.root.userData.maderaDoor = true;
   return <primitive object={door.root} />;
 }
 
@@ -82,25 +87,50 @@ function GlbDoor({ path, open, reducedMotion }: { path: string; open: boolean; r
     });
     invalidate();
   });
+  scene.userData.maderaDoor = true;
   return <primitive object={scene} />;
 }
 
-function CameraRig({ distance, apiRef }: { distance: number; apiRef: React.MutableRefObject<ViewerApi | null> }) {
+/** Polovina širine i visina scene koja mora stati u kadar (m), po vrsti vrata. */
+function extents(kind: DoorSpec['kind']) {
+  if (kind === 'sliding') return { halfW: 1.45, height: 2.25 };
+  if (kind === 'double') return { halfW: 0.85, height: 2.2 };
+  return { halfW: 0.62, height: 2.2 };
+}
+
+const FOV = 36;
+
+/** Udaljenost kamere pri kojoj cijela vrata (s okvirom) staju u kadar za trenutni omjer platna. */
+export function fitDistance(kind: DoorSpec['kind'], aspect: number): number {
+  const { halfW, height } = extents(kind);
+  const tanV = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+  const byHeight = (height / 2 + 0.12) / tanV;
+  const byWidth = halfW / (tanV * Math.max(aspect, 0.2));
+  return Math.max(byHeight, byWidth) * 1.05;
+}
+
+function CameraRig({ kind, apiRef }: { kind: DoorSpec['kind']; apiRef: React.MutableRefObject<ViewerApi | null> }) {
   const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const size = useThree((s) => s.size);
   const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
   const invalidate = useThree((s) => s.invalidate);
 
+  // Kadriranje se ponavlja pri promjeni veličine, orijentacije i vrste vrata.
   useEffect(() => {
-    if (!controls) return;
-    const target = new THREE.Vector3(0, 1.05, 0);
+    if (!controls || size.width === 0 || size.height === 0) return;
+    const distance = fitDistance(kind, size.width / size.height);
+    const target = new THREE.Vector3(0, 1.08, 0);
     camera.position.set(Math.sin(AZIMUTH) * distance, CAM_HEIGHT, Math.cos(AZIMUTH) * distance);
     controls.target.copy(target);
-    controls.minDistance = distance * 0.55;
-    controls.maxDistance = distance * 1.25;
+    controls.minDistance = distance * 0.6;
+    controls.maxDistance = distance * 1.3;
     controls.update();
     controls.saveState();
+    // Vodoravno povlačenje okreće pogled, a uspravno skrolanje stranice ostaje prirodno.
+    gl.domElement.style.touchAction = 'pan-y';
     invalidate();
-  }, [camera, controls, distance, invalidate]);
+  }, [camera, controls, gl, kind, size.width, size.height, invalidate]);
 
   useEffect(() => {
     apiRef.current = {
@@ -118,36 +148,90 @@ function CameraRig({ distance, apiRef }: { distance: number; apiRef: React.Mutab
         invalidate();
       },
     };
+    return () => {
+      apiRef.current = null;
+    };
   }, [apiRef, camera, controls, invalidate]);
   return null;
 }
 
-function ReadySignal({ onReady }: { onReady?: () => void }) {
+/**
+ * Preuzima crtanje (prioritet 1) i javlja prvi stvarno nacrtan kadar s vratima za tačno ovu sesiju.
+ * Montiranje komponente nije dokaz vidljivog proizvoda; dokaz je završen render bez izgubljenog konteksta.
+ */
+function FrameConfirm({ session, onFirstFrame }: { session: number; onFirstFrame: (session: number) => void }) {
+  const confirmed = useRef(-1);
+  const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
-    onReady?.();
-  }, [onReady]);
+    invalidate();
+  }, [session, invalidate]);
+  useFrame(({ gl, scene, camera }) => {
+    gl.render(scene, camera);
+    if (confirmed.current === session) return;
+    let hasDoor = false;
+    scene.traverse((o) => {
+      if (o.userData.maderaDoor && o.visible) hasDoor = true;
+    });
+    if (hasDoor && !gl.getContext().isContextLost() && gl.info.render.triangles > 0) {
+      confirmed.current = session;
+      onFirstFrame(session);
+    } else {
+      invalidate();
+    }
+  }, 1);
   return null;
 }
 
-const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer({ spec, glbPath, open, reducedMotion, active, resetKey, onReady }, ref) {
+/** Traži novi kadar kad viewer ponovo postane vidljiv ili kad se tab vrati iz pozadine. */
+function Wake({ active }: { active: boolean }) {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    if (active) invalidate();
+  }, [active, invalidate]);
+  useEffect(() => {
+    const onVis = () => !document.hidden && invalidate();
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', onVis);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', onVis);
+    };
+  }, [invalidate]);
+  return null;
+}
+
+const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer(
+  { spec, glbPath, open, reducedMotion, active, resetKey, session, quality, onFirstFrame, onFail },
+  ref,
+) {
   const apiRef = useRef<ViewerApi | null>(null);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+  const failRef = useRef(onFail);
+  failRef.current = onFail;
   useImperativeHandle(ref, () => ({
     reset: () => apiRef.current?.reset(),
     zoom: (d) => apiRef.current?.zoom(d),
   }));
-  const distance = spec.kind === 'sliding' ? 6.2 : spec.kind === 'double' ? 5.1 : 4.3;
+  const low = quality === 'low';
+  const maxDpr = Math.min(low ? 1.25 : 1.75, typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
 
   return (
     <Canvas
       className="viewer__canvas"
-      shadows
+      shadows={!low}
       frameloop={active ? 'demand' : 'never'}
-      dpr={[1, Math.min(1.75, typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1)]}
-      camera={{ fov: 36, near: 0.1, far: 40, position: [Math.sin(AZIMUTH) * distance, CAM_HEIGHT, Math.cos(AZIMUTH) * distance] }}
-      gl={{ antialias: true, powerPreference: 'default' }}
+      dpr={[1, maxDpr]}
+      camera={{ fov: FOV, near: 0.1, far: 40, position: [0, CAM_HEIGHT, 5] }}
+      gl={{ antialias: true, powerPreference: 'default', failIfMajorPerformanceCaveat: false }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.12;
+        // Izgubljen kontekst vraća fotografiju; ponovni pokušaj je na akciju korisnika.
+        gl.domElement.addEventListener('webglcontextlost', (e) => {
+          e.preventDefault();
+          failRef.current(sessionRef.current, 'context-lost');
+        });
       }}
     >
       <color attach="background" args={['#f2ede5']} />
@@ -157,7 +241,7 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer({ spec, glbP
         position={[-3, 4.5, 4]}
         intensity={2.1}
         color="#fff1dc"
-        castShadow
+        castShadow={!low}
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
@@ -170,7 +254,7 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer({ spec, glbP
       />
       <directionalLight position={[2.5, 2.2, 3]} intensity={0.55} color="#ffffff" />
       <directionalLight position={[3, 2, -3]} intensity={0.6} color="#ffffff" />
-      <Environment resolution={128} frames={1}>
+      <Environment resolution={low ? 64 : 128} frames={1}>
         <Lightformer form="rect" intensity={1.2} position={[0, 4, 4]} scale={[8, 3, 1]} />
         <Lightformer form="rect" intensity={0.6} color="#ffe9cf" position={[-5, 2, 1]} rotation-y={Math.PI / 2} scale={[6, 3, 1]} />
         <Lightformer form="rect" intensity={0.4} position={[5, 2, -1]} rotation-y={-Math.PI / 2} scale={[6, 3, 1]} />
@@ -181,9 +265,9 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer({ spec, glbP
         ) : (
           <ProceduralDoor key={resetKey} spec={spec} open={open} reducedMotion={reducedMotion} />
         )}
-        <ReadySignal onReady={onReady} />
+        <FrameConfirm session={session} onFirstFrame={onFirstFrame} />
       </Suspense>
-      <ContactShadows position={[0, 0.002, 0.6]} scale={[6, 3]} opacity={0.32} blur={2.4} far={2.4} resolution={512} color="#5b4630" />
+      <ContactShadows position={[0, 0.002, 0.6]} scale={[6, 3]} opacity={0.32} blur={2.4} far={2.4} resolution={low ? 256 : 512} color="#5b4630" />
       <OrbitControls
         makeDefault
         enablePan={false}
@@ -195,7 +279,8 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer({ spec, glbP
         minPolarAngle={1.05}
         maxPolarAngle={1.68}
       />
-      <CameraRig distance={distance} apiRef={apiRef} />
+      <CameraRig kind={spec.kind} apiRef={apiRef} />
+      <Wake active={active} />
     </Canvas>
   );
 });

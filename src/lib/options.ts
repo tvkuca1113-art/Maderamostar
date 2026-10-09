@@ -134,3 +134,9 @@ export function matchesFilter(product: Product, filter: CatalogFilter): boolean 
       return product.category === filter;
   }
 }
+
+export function stavkeLabel(n: number): string {
+  if (n % 10 === 1 && n % 100 !== 11) return 'stavka';
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) return 'stavke';
+  return 'stavki';
+}

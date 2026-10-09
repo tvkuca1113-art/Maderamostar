@@ -1,10 +1,11 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { getProduct, siteConfig } from '../data';
 import { buildInquiryJson, buildInquiryText, copyText, describeDetails, downloadFile, type InquiryContact } from '../lib/inquiry';
-import { roomLabel } from '../lib/options';
+import { roomLabel, stavkeLabel } from '../lib/options';
 import { isValid, quantityOf, validateConfig } from '../lib/validation';
-import { useStore } from '../state/store';
-import { useUi } from '../state/ui';
+import { draftInProject, useStore } from '../state/store';
+import { useUi, type InquiryScope } from '../state/ui';
+import type { DoorConfig } from '../types';
 import { Dialog } from './Dialog';
 import { PlacesDatalist, TextField } from './fields';
 
@@ -21,24 +22,36 @@ function validateContact(c: InquiryContact, location: string): Errors {
   return e;
 }
 
+/** Stavke koje ulaze u upit za zadani obuhvat. Obuhvat se nikad ne mijenja implicitno. */
+export function inquiryItems(scope: InquiryScope, draft: DoorConfig, items: DoorConfig[]): DoorConfig[] {
+  return scope === 'project' ? items : [draft];
+}
+
 /**
  * Pregled upita i kontakt. Bez potvrđenog kanala (endpoint/email su null) upit se samo priprema:
- * kopiranje, preuzimanje i poziv. Kontaktni podaci postoje samo u memoriji ovog prozora.
+ * kopiranje, preuzimanje teksta i poziv. Kontaktni podaci postoje samo u memoriji ovog prozora.
  */
 export function InquiryDialog() {
   const { inquiry, closeInquiry, goTo } = useUi();
   const { state, dispatch } = useStore();
   const [contact, setContact] = useState<InquiryContact>({ name: '', phone: '', message: '' });
+  const [override, setOverride] = useState<InquiryScope | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [prepared, setPrepared] = useState(false);
   const [copyMsg, setCopyMsg] = useState('');
   const [send, setSend] = useState<SendState>('idle');
+  const sendingRef = useRef(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
-  const items = useMemo(
-    () => (inquiry === 'project' && state.items.length > 0 ? state.items : [state.draft]),
-    [inquiry, state.items, state.draft],
-  );
+  if (!inquiry) return null;
+
+  const hasProject = state.items.length > 0;
+  // Bez spremljenih stavki „cijeli izbor” ne postoji; tada se jasno nudi samo trenutni izbor.
+  const scope: InquiryScope = (override ?? inquiry) === 'project' && hasProject ? 'project' : 'draft';
+  const items = inquiryItems(scope, state.draft, state.items);
+  const projectTotal = state.items.reduce((s, i) => s + quantityOf(i), 0);
+  const draftProduct = getProduct(state.draft.productId);
+  const draftSaved = draftInProject(state);
   const itemsValid = items.every((i) => isValid(validateConfig(i)));
   const errors = validateContact(contact, state.location);
   const shown = submitted ? errors : {};
@@ -46,18 +59,22 @@ export function InquiryDialog() {
   const endpoint = siteConfig.contactForm.endpoint;
   const total = items.reduce((s, i) => s + quantityOf(i), 0);
 
-  const close = () => {
+  const reset = () => {
     setSubmitted(false);
     setPrepared(false);
     setCopyMsg('');
-    setSend('idle');
+    setSend((s) => (s === 'sending' ? s : 'idle'));
+  };
+
+  const close = () => {
+    reset();
+    setOverride(null);
     closeInquiry();
   };
 
-  if (!inquiry) return null;
-
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (sendingRef.current) return;
     setSubmitted(true);
     if (Object.keys(errors).length > 0 || !itemsValid) {
       e.currentTarget.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
@@ -67,7 +84,8 @@ export function InquiryDialog() {
       setPrepared(true);
       return;
     }
-    // Stvarni kanal: uspjeh tek nakon potvrđenog odgovora servera; kod greške upit ostaje.
+    // Stvarni kanal: uspjeh tek nakon valjanog odgovora servera; kod greške izbor i unos ostaju.
+    sendingRef.current = true;
     setSend('sending');
     try {
       const res = await fetch(endpoint, {
@@ -78,6 +96,8 @@ export function InquiryDialog() {
       setSend(res.ok ? 'sent' : 'error');
     } catch {
       setSend('error');
+    } finally {
+      sendingRef.current = false;
     }
   };
 
@@ -94,8 +114,10 @@ export function InquiryDialog() {
   const setField = (k: keyof InquiryContact) => (v: string) => {
     setContact((c) => ({ ...c, [k]: v }));
     setPrepared(false);
-    setSend((s) => (s === 'sent' ? s : 'idle'));
+    setSend((s) => (s === 'sent' || s === 'sending' ? s : 'idle'));
   };
+
+  const title = scope === 'project' ? `Ponuda za cijeli izbor (${projectTotal} vrata)` : 'Ponuda za ova vrata';
 
   return (
     <Dialog open onClose={close} labelledBy="upit-naslov" className="dialog--inquiry" initialFocus="#upit-ime">
@@ -103,24 +125,60 @@ export function InquiryDialog() {
         ×
       </button>
       <div className="inquiry">
-        <h2 id="upit-naslov">Pregled upita</h2>
+        <h2 id="upit-naslov">{title}</h2>
+
+        {hasProject && (
+          <div className="segmented segmented--wide" role="group" aria-label="Obuhvat upita">
+            <button
+              type="button"
+              aria-pressed={scope === 'draft'}
+              className={scope === 'draft' ? 'is-active' : ''}
+              onClick={() => {
+                setOverride('draft');
+                reset();
+              }}
+            >
+              Samo trenutna vrata ({draftProduct?.displayName}, {quantityOf(state.draft)} kom.)
+            </button>
+            <button
+              type="button"
+              aria-pressed={scope === 'project'}
+              className={scope === 'project' ? 'is-active' : ''}
+              onClick={() => {
+                setOverride('project');
+                reset();
+              }}
+            >
+              Cijeli izbor ({projectTotal} vrata)
+            </button>
+          </div>
+        )}
+
         <p className="muted">
-          {items.length} {items.length === 1 ? 'stavka' : 'stavke'} · ukupno {total} vrata. Konačnu cijenu, mjere i dostupne opcije potvrđuje Madera.
+          {items.length} {stavkeLabel(items.length)} · ukupno {total} vrata. Konačnu cijenu, mjere i dostupne opcije potvrđuje Madera.
         </p>
 
-        <ol className="inquiry__items">
+        <ul className="inquiry__items">
           {items.map((it, i) => {
             const p = getProduct(it.productId);
             return (
               <li key={'id' in it ? (it as { id: string }).id : 'izbor'}>
-                <strong>
-                  {roomLabel(it, i)}: {p?.displayName}
-                </strong>
-                <span>{describeDetails(it, p).join(' · ')}</span>
+                {p && <img src={p.image} alt="" width={44} height={55} />}
+                <div>
+                  <strong>
+                    {roomLabel(it, i)}: {p?.displayName}
+                  </strong>
+                  <span>{describeDetails(it, p).join(' · ')}</span>
+                </div>
               </li>
             );
           })}
-        </ol>
+        </ul>
+        {scope === 'project' && !draftSaved && (
+          <p className="notice notice--warn small">
+            Trenutna vrata iz konfiguratora ({draftProduct?.displayName}) nisu u Mom izboru i nisu uključena u ovaj upit.
+          </p>
+        )}
         {!itemsValid && (
           <p className="notice notice--warn">
             Izbor nije potpun (mjere ili broj vrata).{' '}
@@ -167,7 +225,7 @@ export function InquiryDialog() {
             />
             <div className="field form-grid__full">
               <label htmlFor="upit-poruka">Poruka (nije obavezno)</label>
-              <textarea id="upit-poruka" rows={3} value={contact.message} onChange={(e) => setField('message')(e.target.value)} maxLength={1000} />
+              <textarea id="upit-poruka" rows={2} value={contact.message} onChange={(e) => setField('message')(e.target.value)} maxLength={1000} />
             </div>
           </div>
           <PlacesDatalist />
@@ -175,41 +233,27 @@ export function InquiryDialog() {
             <button type="submit" className="btn btn--primary" disabled={send === 'sending'}>
               {endpoint ? (send === 'sending' ? 'Slanje…' : 'Pošalji upit') : 'Pripremi upit'}
             </button>
-            <p className="muted small">Podaci se ne spremaju na ovom uređaju.</p>
+            <p className="muted small">
+              {endpoint ? 'Podaci se ne spremaju na ovom uređaju.' : 'Upit se priprema za slanje; ova stranica ga još ne šalje automatski.'}
+            </p>
           </div>
         </form>
 
         <div role="status" aria-live="polite" className="inquiry__status">
           {prepared && (
             <p className="notice notice--success">
-              <strong>Upit je pripremljen. Kontaktirajte Maderu i podijelite svoj izbor.</strong>
+              <strong>Upit je pripremljen, još nije poslan.</strong> Kopirajte ga i pošaljite Maderi ili je nazovite.
             </p>
           )}
           {send === 'sent' && <p className="notice notice--success">Upit je poslan. Madera će vas kontaktirati.</p>}
-          {send === 'error' && <p className="notice notice--warn">Slanje nije uspjelo. Upit je sačuvan ispod; kopirajte ga ili pozovite Maderu.</p>}
+          {send === 'error' && <p className="notice notice--warn">Slanje nije uspjelo. Vaš izbor je sačuvan; pokušajte ponovo, kopirajte upit ili pozovite Maderu.</p>}
         </div>
 
         {(prepared || send === 'error' || send === 'sent') && (
           <div className="inquiry__prepared">
-            <label htmlFor="upit-tekst" className="h-small">
-              Tekst upita
-            </label>
-            <textarea id="upit-tekst" ref={textRef} className="inquiry__text" readOnly value={text} rows={8} />
             <div className="inquiry__actions">
               <button type="button" className="btn btn--primary" onClick={onCopy}>
                 Kopiraj upit
-              </button>
-              <button type="button" className="btn btn--ghost" onClick={() => downloadFile('madera-upit.txt', text, 'text/plain;charset=utf-8')}>
-                Preuzmi svoj izbor
-              </button>
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() =>
-                  downloadFile('madera-upit.json', JSON.stringify(buildInquiryJson(items, state.location, getProduct, contact), null, 2), 'application/json')
-                }
-              >
-                Preuzmi JSON
               </button>
               <a className="btn btn--dark" href={siteConfig.phoneHref}>
                 Pozovi Maderu
@@ -224,10 +268,17 @@ export function InquiryDialog() {
                   Otvori u WhatsAppu
                 </a>
               )}
+              <button type="button" className="text-link" onClick={() => downloadFile('madera-upit.txt', text, 'text/plain;charset=utf-8')}>
+                Preuzmi tekst (.txt)
+              </button>
             </div>
             <p className="small" role="status" aria-live="polite">
               {copyMsg}
             </p>
+            <label htmlFor="upit-tekst" className="h-small">
+              Tekst upita
+            </label>
+            <textarea id="upit-tekst" ref={textRef} className="inquiry__text" readOnly value={text} rows={7} />
           </div>
         )}
       </div>

@@ -3,7 +3,22 @@
 Digitalni salon sobnih vrata za **Madera Mostar**: katalog s filterima, detalj modela, ilustrativni 3D konfigurator, kalkulator, projekt „Vrata za cijeli dom” i priprema upita.
 Implementirano prema `docs/paket/CLAUDE-CODE-SUPERPROMPT.md` (verzija 2: svijetli studio, topli hrast, crveni CTA).
 
-![Desktop](docs/screenshots/desktop-1440-hero.jpg)
+![Desktop](docs/screenshots/01-desktop-pocetni-ekran.jpg)
+
+## Popravke nakon audita (branch `popravka-audit`)
+
+Prema `docs/audit/Madera-Audit.md` i `docs/audit/Madera-Claude-Code-Popravka.md`:
+
+- **3D viewer više ne može ostati prazan.** Eksplicitna stanja `photo / loading / ready / error` (`src/three/viewerState.ts`) sa sesijom po aktivaciji i modelu; provjera **WebGL 2** (probni kontekst se oslobađa); fotografija ostaje dok renderer ne potvrdi **stvarno nacrtan kadar s vratima** (`FrameConfirm` u `DoorViewer.tsx`); obrada `webglcontextlost`, greške importa i rendera (ErrorBoundary), ograničenje od 10 s aktivnog učitavanja (ne broji se dok je tab skriven ili viewer van ekrana); ponovni pokušaj samo dugmetom; kontrole tek kad je 3D spreman; ponovno kadriranje na promjenu veličine/orijentacije; vodoravno povlačenje okreće, uspravno skrolanje stranice ostaje prirodno; niži DPR i bez mape sjena na slabijim/touch uređajima; 3D na telefonu samo na zahtjev.
+- **Mobilni prvi ekran**: naslov, kratka rečenica, dugme „Kreiraj svoj izbor” i cijela vrata u jednoj sceni prema visini ekrana (`svh` uz `vh` rezervu), bez negativnih margina; posebna pravila za mali i položeni ekran.
+- **Planer vrata za cijeli dom** s oznakom „Cijena na upit” (postaje „Kalkulator izrade vrata” tek uz odobren cjenovnik). Obuhvat je eksplicitan: „Ponuda za ova vrata” i „Ponuda za cijeli izbor (N vrata)”, upozorenje o nespremljenim vratima stoji prije akcije, a dijalog upita ima prekidač obuhvata.
+- **Konfigurator u tri koraka** (Model i izgled → Mjere i prostorija → Pregled i ponuda), vizuelni uzorci obrade i kvake, dijagram smjera otvaranja odozgo usklađen s 3D prikazom, debljina zida u „Dodatnim opcijama”, greške uz polje i fokus na prvu grešku.
+- **Katalog**: direktno „Odaberi model”, detalji sekundarni, kompaktne dvije kolone na telefonu.
+- **Moj izbor** kao jedini naziv; promjena prostorije direktno u stavci (fokus nakon dupliranja).
+- **Upit**: „Upit je pripremljen, još nije poslan.”, Kopiraj upit i Pozovi Maderu kao glavne akcije, TXT sekundarno, uklonjen JSON; zaštita od duplog slanja za budući endpoint.
+
+**Preostalo za provjeru:** test na stvarnom iPhoneu/Safariju nije urađen u ovom okruženju (ovdje: Chromium sa SwiftShader WebGL-om i mobilnom emulacijom). Prije tvrdnje da je korisnikov prazan viewer riješen na iOS-u potrebno je otvoriti stranicu na telefonu. Za stvarno slanje upita nedostaje potvrđen kanal (`contactForm.endpoint` ili email u `data/site-config.json`).
+
 
 ## Pokretanje
 
@@ -37,9 +52,9 @@ Stack: React 18 + TypeScript + Vite 6, Three.js 0.169 + React Three Fiber 8 + dr
 
 ## Provjera
 
-- `npm test` — 65 testova: režim A bez iznosa; režim B s kontroliranim testnim cjenovnikom (`tests/fixtures/`, ne ulazi u aplikaciju); nedostajuće stope i nepotpune mjere → „Potrebna ponuda”; tri prostorije nakon uređivanja, dupliranje, uklanjanje; „Ne znam mjere” i poruka za pogrešnu količinu; katalog → konfigurator → sažetak; kopiranje i preuzimanje; 3D: krilo/kvaka/rozeta se kreću zajedno, okvir miruje, SAT provjera kolizija za svih 11 izvedbi × 3 strane kvake (i negativni test koji dokazuje da provjera hvata koliziju); WebGL fallback + reduced motion.
+- `npm test` — 74 testa (uključujući stanja 3D viewera i obuhvat upita Milano 3 / Sara 1): režim A bez iznosa; režim B s kontroliranim testnim cjenovnikom (`tests/fixtures/`, ne ulazi u aplikaciju); nedostajuće stope i nepotpune mjere → „Potrebna ponuda”; tri prostorije nakon uređivanja, dupliranje, uklanjanje; „Ne znam mjere” i poruka za pogrešnu količinu; katalog → konfigurator → sažetak; kopiranje i preuzimanje; 3D: krilo/kvaka/rozeta se kreću zajedno, okvir miruje, SAT provjera kolizija za svih 11 izvedbi × 3 strane kvake (i negativni test koji dokazuje da provjera hvata koliziju); WebGL fallback + reduced motion.
 - `npm run build` — TypeScript bez grešaka; početni JS ≈ 71 kB gzip, 3D dio (≈ 270 kB gzip) se učitava lijeno.
-- Vizualno pregledano u Chromiumu na 1440×900, 1024×768, 390×844 i 320×740 (bez horizontalnog skrola, bez grešaka u konzoli). Screenshotovi: `docs/screenshots/`.
+- Vizualno pregledano u Chromiumu na 1440×900, 1024×768, 390×844 i 320×740 (bez horizontalnog skrola, bez grešaka u konzoli). Screenshotovi stvarne aplikacije: `docs/screenshots/` (početni ekran, katalog, konfigurator foto/3D, namjerna greška i gubitak konteksta, Moj izbor, upit, svih 11 modela foto vs 3D).
 
 ## Gdje se unose podaci
 

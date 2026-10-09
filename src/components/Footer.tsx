@@ -1,5 +1,5 @@
 import { siteConfig } from '../data';
-import { NAV } from './Header';
+import { calcLabel, NAV } from './Header';
 
 export function Footer() {
   return (
@@ -17,7 +17,7 @@ export function Footer() {
               </li>
             ))}
             <li>
-              <a href="#kalkulator">Kalkulator</a>
+              <a href="#kalkulator">{calcLabel()}</a>
             </li>
           </ul>
         </nav>
