@@ -59,20 +59,9 @@ function StyleShortcuts() {
 export function Hero() {
   const { goTo } = useUi();
   const mobile = useMediaQuery(MOBILE_QUERY);
+  // Prečice stila stoje u heroju samo na širokim i visokim ekranima; inače odmah ispod njega.
+  const pickerInHero = useMediaQuery('(min-width: 1100px) and (min-height: 760px)');
 
-  const primary = (
-    <a
-      href="#konfigurator"
-      className="btn btn--primary btn--lg"
-      onClick={(e) => {
-        e.preventDefault();
-        goTo('konfigurator');
-      }}
-    >
-      Odaberi svoja vrata
-      <ArrowIcon />
-    </a>
-  );
   const secondary = (
     <a href="#modeli" className="btn btn--ghost btn--lg">
       Pogledaj modele
@@ -87,13 +76,13 @@ export function Hero() {
             media="(max-width: 767px)"
             type="image/avif"
             srcSet="/images/madera/opt/hero-hrast-mobile-640.avif 640w, /images/madera/opt/hero-hrast-mobile-1024.avif 1024w"
-            sizes="100vw"
+            sizes="150vw"
           />
           <source
             media="(max-width: 767px)"
             type="image/webp"
             srcSet="/images/madera/opt/hero-hrast-mobile-640.webp 640w, /images/madera/opt/hero-hrast-mobile-1024.webp 1024w"
-            sizes="100vw"
+            sizes="150vw"
           />
           <source media="(max-width: 767px)" srcSet="/images/madera/hero-hrast-mobile.png" width={1024} height={1536} />
           <source
@@ -122,26 +111,34 @@ export function Hero() {
             <br />
             Vaš izbor.
           </h1>
-          <p className="hero__lead">Odaberite model, boju i detalje. Zatražite ponudu za svoj dom.</p>
-          <p className="hero__service">Izrada, doprema i montaža sobnih vrata u Hercegovini.</p>
-          {!mobile && (
-            <>
-              <div className="hero__actions">
-                {primary}
-                {secondary}
-              </div>
-              <StyleShortcuts />
-            </>
-          )}
+          <p className="hero__lead">Odaberite izgled. Pripremite ponudu za svoj dom.</p>
+          {!mobile && <p className="hero__service">Mostar · Izrada i montaža u Hercegovini</p>}
+          <div className="hero__actions">
+            <a
+              href="#konfigurator"
+              className="btn btn--primary btn--lg"
+              onClick={(e) => {
+                e.preventDefault();
+                goTo('konfigurator');
+              }}
+            >
+              Kreiraj svoj izbor
+              <ArrowIcon />
+            </a>
+            {!mobile && secondary}
+          </div>
+          {pickerInHero && <StyleShortcuts />}
         </div>
-        {mobile && <div className="hero__floor-action">{primary}</div>}
         {!mobile && <p className="hero__note">Ilustracija ambijenta</p>}
       </div>
-      {mobile && (
+      {(mobile || !pickerInHero) && (
         <div className="hero__below">
-          <p className="hero__note">Ilustracija ambijenta</p>
-          {secondary}
-          <StyleShortcuts />
+          <div className="container hero__below-inner">
+            {mobile && secondary}
+            {mobile && <p className="hero__service">Mostar · Izrada i montaža u Hercegovini</p>}
+            <StyleShortcuts />
+            {mobile && <p className="hero__note">Ilustracija ambijenta na početnoj slici.</p>}
+          </div>
         </div>
       )}
     </section>

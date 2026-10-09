@@ -31,6 +31,8 @@ export interface State {
   location: string;
   editingId: string | null;
   lastAdded: { id: string; mode: 'added' | 'saved' } | null;
+  /** Posljednja duplirana stavka, da se odmah ponudi promjena prostorije. */
+  lastDuplicated: string | null;
 }
 
 export type Action =
@@ -44,6 +46,7 @@ export type Action =
   | { type: 'project/cancelEdit' }
   | { type: 'project/duplicate'; id: string; newId?: string }
   | { type: 'project/remove'; id: string }
+  | { type: 'project/update'; id: string; patch: Partial<DoorConfig> }
   | { type: 'project/clear' }
   | { type: 'notice/dismiss' };
 
@@ -59,6 +62,7 @@ export const initialState: State = {
   location: '',
   editingId: null,
   lastAdded: null,
+  lastDuplicated: null,
 };
 
 export function reducer(state: State, action: Action): State {
@@ -111,8 +115,10 @@ export function reducer(state: State, action: Action): State {
       const copy: ProjectItem = { ...state.items[idx], id: action.newId ?? newId() };
       const items = [...state.items];
       items.splice(idx + 1, 0, copy);
-      return { ...state, items };
+      return { ...state, items, lastDuplicated: copy.id };
     }
+    case 'project/update':
+      return { ...state, items: state.items.map((i) => (i.id === action.id ? { ...i, ...action.patch, id: i.id } : i)) };
     case 'project/remove':
       return {
         ...state,
@@ -133,6 +139,14 @@ function isConfig(x: unknown): x is DoorConfig {
   if (!x || typeof x !== 'object') return false;
   const c = x as Record<string, unknown>;
   return typeof c.productId === 'string' && typeof c.quantity === 'string' && typeof c.widthCm === 'string';
+}
+
+/** Da li je trenutni izbor (draft) već spremljen kao stavka u Mom izboru. */
+export function draftInProject(state: Pick<State, 'draft' | 'items'>): boolean {
+  return state.items.some((it) => {
+    const { id: _id, ...rest } = it;
+    return (Object.keys(rest) as (keyof DoorConfig)[]).every((k) => rest[k] === state.draft[k]);
+  });
 }
 
 export function loadState(validProductIds: string[]): State {

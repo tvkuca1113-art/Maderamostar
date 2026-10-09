@@ -1,4 +1,5 @@
 import { siteConfig } from '../data';
+import { useStore } from '../state/store';
 import { useUi } from '../state/ui';
 import { ArrowIcon } from './Header';
 
@@ -75,6 +76,7 @@ export function Faq() {
 
 export function Contact() {
   const { openInquiry } = useUi();
+  const { state } = useStore();
   return (
     <section className="section contact" id="kontakt" aria-labelledby="kontakt-naslov">
       <div className="container contact__inner">
@@ -82,7 +84,7 @@ export function Contact() {
           <h2 id="kontakt-naslov">Koja vrata zamišljate u svom domu?</h2>
           <p className="section__lead">Pošaljite svoj izbor i osnovne podatke za ponudu.</p>
           <div className="contact__actions">
-            <button type="button" className="btn btn--primary btn--lg" onClick={() => openInquiry('project')}>
+            <button type="button" className="btn btn--primary btn--lg" onClick={() => openInquiry(state.items.length > 0 ? 'project' : 'draft')}>
               Pripremi upit
               <ArrowIcon />
             </button>

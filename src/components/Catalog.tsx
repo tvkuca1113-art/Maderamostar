@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { products } from '../data';
 import { CATALOG_FILTERS, matchesFilter, type CatalogFilter } from '../lib/options';
+import { useStore } from '../state/store';
 import { useUi } from '../state/ui';
 import type { Product } from '../types';
 import { ProductPicture } from './Picture';
@@ -12,28 +13,43 @@ export function recordLabel(p: Product): string {
 }
 
 function ProductCard({ product }: { product: Product }) {
-  const { openProduct } = useUi();
+  const { openProduct, goTo } = useUi();
+  const { state, dispatch } = useStore();
   const titleId = `kartica-${product.id}`;
+  const selected = state.draft.productId === product.id;
   return (
-    <li className="card">
+    <li className={`card${selected ? ' is-selected' : ''}`}>
       <article aria-labelledby={titleId}>
-        <div className="card__media">
-          <ProductPicture src={product.image} alt={product.imageAlt} sizes="(max-width: 767px) 90vw, (max-width: 1279px) 45vw, 400px" />
-        </div>
+        <button type="button" className="card__media" onClick={() => openProduct(product.id)} aria-label={`Detalji: ${product.displayName}`}>
+          <ProductPicture src={product.image} alt={product.imageAlt} sizes="(max-width: 599px) 45vw, (max-width: 1023px) 45vw, 400px" />
+        </button>
         <div className="card__body">
           <p className="tag">{recordLabel(product)}</p>
           <h3 id={titleId} className="card__title">
             {product.displayName}
           </h3>
           <p className="card__text">{product.description}</p>
-          <button
-            type="button"
-            className="text-link card__action"
-            aria-label={`Pogledaj detalje: ${product.displayName}`}
-            onClick={() => openProduct(product.id)}
-          >
-            Pogledaj detalje
-          </button>
+          <div className="card__actions">
+            <button
+              type="button"
+              className="btn btn--primary btn--sm"
+              aria-label={`Odaberi model: ${product.displayName}`}
+              onClick={() => {
+                dispatch({ type: 'draft/selectProduct', productId: product.id });
+                goTo('konfigurator');
+              }}
+            >
+              Odaberi model
+            </button>
+            <button
+              type="button"
+              className="text-link card__action"
+              aria-label={`Pogledaj detalje: ${product.displayName}`}
+              onClick={() => openProduct(product.id)}
+            >
+              Detalji
+            </button>
+          </div>
         </div>
       </article>
     </li>
@@ -51,6 +67,7 @@ export function Catalog() {
     <section className="section catalog" id="modeli" aria-labelledby="modeli-naslov">
       <div className="container">
         <div className="section__head">
+          <p className="eyebrow eyebrow--section">Modeli vrata</p>
           <h2 id="modeli-naslov">Pronađite vrata za svoj prostor.</h2>
           <p className="section__lead">Od toplog hrastovog furnira do čistih bijelih ploha i staklenih izvedbi.</p>
         </div>
