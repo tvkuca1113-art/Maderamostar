@@ -1,7 +1,8 @@
 import { forwardRef, Suspense, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { ContactShadows, Environment, OrbitControls, useGLTF, useTexture } from '@react-three/drei';
-import { EffectComposer, N8AO, SMAA } from '@react-three/postprocessing';
+import { EffectComposer, N8AO, SMAA, ToneMapping } from '@react-three/postprocessing';
+import { ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { buildDoor, type DoorSpec, type TextureKit } from './doorBuilder';
@@ -249,6 +250,44 @@ function CameraRig({
 }
 
 /**
+ * Kosa sunčeva svjetlost kroz prozor s krošnjom (gobo maska), kao na početnoj fotografiji:
+ * topli trapez svjetla i sjene lišća padaju na zid i vrata, okvir baca stvarnu sjenu.
+ */
+function Sunlight({ low }: { low: boolean }) {
+  const gobo = useTexture('/textures/gobo-window.jpg');
+  const light = useRef<THREE.SpotLight>(null);
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {
+    const l = light.current;
+    if (!l) return;
+    l.target.position.set(0.45, 1.25, 0);
+    scene.add(l.target);
+    l.target.updateMatrixWorld();
+    return () => {
+      scene.remove(l.target);
+    };
+  }, [scene]);
+  return (
+    <spotLight
+      ref={light}
+      position={[-3.4, 3.3, 3.1]}
+      angle={0.46}
+      penumbra={0.5}
+      decay={0}
+      intensity={5.2}
+      color="#fff0de"
+      map={gobo}
+      castShadow
+      shadow-mapSize={low ? [1024, 1024] : [2048, 2048]}
+      shadow-bias={-0.0002}
+      shadow-normalBias={0.025}
+      shadow-camera-near={1.5}
+      shadow-camera-far={12}
+    />
+  );
+}
+
+/**
  * Javlja prvi stvarno nacrtan kadar s vratima za tačno ovu sesiju.
  * Bez postprocesinga preuzima i crtanje (prioritet 1); s njim crta EffectComposer (prioritet 1),
  * a provjera ide poslije (prioritet 2).
@@ -318,14 +357,16 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer(
   return (
     <Canvas
       className="viewer__canvas"
-      shadows={low ? false : 'soft'}
+      shadows="soft"
       frameloop={active ? 'demand' : 'never'}
       dpr={[1, maxDpr]}
       camera={{ fov: FOV, near: 0.05, far: 40, position: [0, CAM_HEIGHT, 5] }}
       gl={{ antialias: low, powerPreference: 'default', failIfMajorPerformanceCaveat: false }}
       onCreated={({ gl }) => {
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 0.98;
+        // Khronos PBR Neutral: vjerne boje proizvoda (hrast, lak, metal) uz mekan prijelaz u svjetlima.
+        // Na visokoj kvaliteti isto mapiranje radi ToneMapping efekt na kraju postprocesinga.
+        gl.toneMapping = THREE.NeutralToneMapping;
+        gl.toneMappingExposure = 1;
         // Izgubljen kontekst vraća fotografiju; ponovni pokušaj je na akciju korisnika.
         gl.domElement.addEventListener('webglcontextlost', (e) => {
           e.preventDefault();
@@ -335,26 +376,15 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer(
     >
       <color attach="background" args={['#efe9e0']} />
       <fog attach="fog" args={['#efe9e0', 10, 26]} />
-      <hemisphereLight args={['#fffaf2', '#d9cdbb', 0.45]} />
-      <directionalLight
-        position={[-2.6, 4.2, 3.6]}
-        intensity={1.9}
-        color="#fff0d8"
-        castShadow={!low}
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0003}
-        shadow-normalBias={0.02}
-        shadow-radius={6}
-        shadow-camera-left={-3}
-        shadow-camera-right={3}
-        shadow-camera-top={3.2}
-        shadow-camera-bottom={-1}
-        shadow-camera-near={1}
-        shadow-camera-far={14}
-      />
+      {/* Mekano popunjavanje iz sobe; glavni ton daje sunce kroz prozor. */}
+      <hemisphereLight args={['#fff6ea', '#cbb89f', 0.14]} />
+      <directionalLight position={[3, 3.5, 4]} intensity={0.22} color="#eef2ff" />
+      {/* Dnevno svjetlo u susjednoj prostoriji: pogled „druga strana” i otvor nisu u mraku. */}
+      <directionalLight position={[1.5, 3.2, -4.5]} intensity={0.9} color="#fff4e6" />
       <Suspense fallback={null}>
         {/* HDR okruženje (CC0, Poly Haven „apartment”) daje realne odsjaje na laku, staklu i metalu. */}
-        <Environment files="/hdri/apartment.exr" environmentIntensity={0.72} />
+        <Environment files="/hdri/apartment.exr" environmentIntensity={0.4} />
+        <Sunlight low={low} />
         {glbPath ? (
           <GlbDoor key={resetKey} path={glbPath} open={open} reducedMotion={reducedMotion} />
         ) : (
@@ -365,10 +395,11 @@ const DoorViewer = forwardRef<ViewerApi, Props>(function DoorViewer(
           <EffectComposer multisampling={0} enableNormalPass={false}>
             <N8AO aoRadius={0.35} distanceFalloff={0.6} intensity={2.2} quality="medium" halfRes />
             <SMAA />
+            <ToneMapping mode={ToneMappingMode.NEUTRAL} />
           </EffectComposer>
         )}
       </Suspense>
-      <ContactShadows position={[0, 0.002, 0.6]} scale={[6, 3]} opacity={0.3} blur={2.4} far={2.4} resolution={low ? 256 : 512} color="#4a3926" />
+      <ContactShadows position={[0, 0.002, 0.6]} scale={[6, 3]} opacity={0.42} blur={2.4} far={2.4} resolution={low ? 256 : 512} color="#4a3926" />
       <OrbitControls makeDefault enablePan={false} enableZoom={false} enableDamping={false} rotateSpeed={0.55} minPolarAngle={0.9} maxPolarAngle={1.68} />
       <CameraRig spec={spec} apiRef={apiRef} doorRef={doorRef} reducedMotion={reducedMotion} />
       <Wake active={active} />

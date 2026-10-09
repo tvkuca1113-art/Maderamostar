@@ -9,7 +9,7 @@ import { DEMO_DIMENSIONS } from './dimensions';
 
 const WHITE: Look = { kind: 'color', color: '#f3f2ee', roughness: 0.45 };
 const OAK: Look = { kind: 'oak' };
-const WALL = '#d8cdbd';
+const WALL = '#e6dfd4';
 const SILVER = { handleColor: '#c8cacc', handleMetal: 0.9 };
 
 const base = {
