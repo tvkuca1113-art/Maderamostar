@@ -1,17 +1,17 @@
-"""Izvorne slike za početni ulaz kroz vrata (scripts/render-room/out/, web verzije pravi optimize-entry.mjs).
+"""Izvorne slike za početni ulaz kroz vrata (scripts/entry/out/, web verzije pravi scripts/optimize-entry.mjs).
 
 - leaf-{desktop,mobile}.png: krilo izrezano iz početne fotografije, s retuširanom ručicom kvake
   (ručica je poseban sloj, pa se može spustiti prije otvaranja).
 - lever-{desktop,mobile}.png: ručica s rozetom, prozirna pozadina.
 Koordinate krila odgovaraju --leaf-* varijablama u styles.css; koordinate ručice ispisuju se na kraju.
-Pokretanje iz korijena projekta: python3 scripts/make-entry-assets.py
+Pokretanje iz korijena projekta: python3 scripts/entry/make-entry-assets.py
 """
 import colorsys
 import numpy as np
 import os
 from PIL import Image, ImageFilter
 
-OUT = 'scripts/render-room/out'
+OUT = 'scripts/entry/out'
 os.makedirs(OUT, exist_ok=True)
 
 VARIANTS = {

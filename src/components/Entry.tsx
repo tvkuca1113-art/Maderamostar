@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion, useUi } from '../state/ui';
+import { CORRIDOR_VP, CorridorScene } from './Corridor';
 import { ArrowIcon } from './Header';
 
 /**
@@ -62,12 +63,21 @@ export function Entry() {
     const set = (k: string, v: string) => sticky.style.setProperty(k, v);
 
     /* Geometrija se mjeri jednom (bez kretanja kamere) i poslije samo preračunava — nema layouta po frameu. */
-    let g = { w: 1, h: 1, dx: 0, dy: 0, dw: 1, dh: 1, ox: 0, oy: 0, max: 6, s0: 0.6, sx0: 0, sy0: 0, sx1: 1, sy1: 1 };
+    let g = { w: 1, h: 1, dx: 0, dy: 0, dw: 1, dh: 1, ox: 0, oy: 0, max: 6, s0: 0.5, sx0: 0, sy0: 0, sx1: 1, sy1: 1, vx: 0.5, vy: 0.5 };
     const measure = () => {
       set('--zoom', '1');
       set('--tx', '0px');
       set('--ty', '0px');
+      set('--px', '0px');
+      set('--py', '0px');
+      set('--ps', '1');
       const s = sticky.getBoundingClientRect();
+      // Nedogled hodnika u završnom rasporedu: oko njega soba raste, a na kraju stoji tačno na svom mjestu.
+      const photo = sticky.querySelector('.entry__room .corridor__photo')?.getBoundingClientRect();
+      const vx = photo ? photo.left - s.left + photo.width * CORRIDOR_VP.x : s.width / 2;
+      const vy = photo ? photo.top - s.top + photo.height * CORRIDOR_VP.y : s.height / 2;
+      set('--vpx', `${vx.toFixed(1)}px`);
+      set('--vpy', `${vy.toFixed(1)}px`);
       const r = doorway.getBoundingClientRect();
       const scene = doorway.parentElement?.getBoundingClientRect() ?? s;
       const dw = Math.max(r.width, 1);
@@ -83,13 +93,15 @@ export function Entry() {
         oy: r.top - s.top + dh / 2,
         // Kamera staje tek kad je otvor veći od ekrana — okvir izlazi iz kadra, ništa se ne „rasteže”.
         max: Math.max(s.width / dw, s.height / dh) * 1.18,
-        // Soba iza vrata je dalje od kamere nego okvir: u otvoru je umanjena i raste sporije (paralaksa dubine).
-        s0: Math.min(1, Math.max(0.55, Math.max(dw / s.width, dh / s.height) * 1.04)),
+        // Hodnik je dalje od kamere nego okvir: u otvoru je umanjen i raste sporije (paralaksa dubine).
+        s0: 0.5,
         // Rubovi fotografije (s produžetkom zida iznad nje, .entry__mirror = 28 % visine).
         sx0: scene.left - s.left,
         sy0: scene.top - s.top - scene.height * 0.28,
         sx1: scene.right - s.left,
         sy1: scene.bottom - s.top,
+        vx: Math.min(s.width - 1, Math.max(1, vx)),
+        vy: Math.min(s.height - 1, Math.max(1, vy)),
       };
       // Perspektiva odgovara kameri fotografije (žarišna daljina ≈ 0,9 × širina vodoravnog, 1,15 × uspravnog kadra).
       set('--persp', `${Math.round(scene.width * (scene.width > scene.height ? 0.9 : 1.15))}px`);
@@ -109,9 +121,11 @@ export function Entry() {
       const latch = easeOut(range(p, 0.04, 0.08));
       const swing = ease(range(p, 0.08, 0.5));
       // Dok kamera prolazi, krilo se otvori do kraja i sakrije iza štoka (ne blijedi, ne „lebdi” ispred sobe).
-      const fully = ease(range(p, 0.5, 0.8));
-      const turn = ease(range(p, 0.24, 0.74));
-      const walk = ease(range(p, 0.28, 1));
+      const fully = ease(range(p, 0.48, 0.74));
+      const turn = ease(range(p, 0.22, 0.7));
+      const walk = ease(range(p, 0.26, 0.84));
+      // Dolazak: naslov, tačke na vratima i dugme se pojave; ostatak skrola je zastoj za razgledanje.
+      const arrive = ease(range(p, 0.8, 0.92));
       const zoom = Math.exp(Math.log(g.max) * walk);
       const f = (zoom - 1) / (g.max - 1);
       const tx = clampShift((g.w / 2 - g.ox) * turn, zoom, g.ox, g.sx0, g.sx1, g.w);
@@ -131,25 +145,29 @@ export function Entry() {
       set('--ty', `${ty.toFixed(1)}px`);
       set('--scene-fade', (1 - range(f, 0.84, 1)).toFixed(3));
       set('--clip', `${Math.max(0, top).toFixed(1)}px ${Math.max(0, g.w - right).toFixed(1)}px ${Math.max(0, g.h - bottom).toFixed(1)}px ${Math.max(0, left).toFixed(1)}px`);
-      // Soba prekriva vidljivi dio otvora (otvor ∩ ekran); raste sporije od okvira, a na kraju je tačno preko ekrana.
+      // Hodnik: nedogled je u početku u sredini otvora, a na kraju na svom mjestu u rasporedu (bez skoka).
+      // Uvijek prekriva vidljivi dio otvora (otvor ∩ ekran) i raste sporije od okvira.
       const vx0 = Math.max(0, left);
       const vy0 = Math.max(0, top);
       const vx1 = Math.min(g.w, right);
       const vy1 = Math.min(g.h, bottom);
-      const roomScale = Math.max(g.s0 + (1 - g.s0) * f, ((vx1 - vx0) / g.w) * 1.02, ((vy1 - vy0) / g.h) * 1.02);
-      set('--px', `${((vx0 + vx1) / 2 - g.w / 2).toFixed(1)}px`);
-      set('--py', `${((vy0 + vy1) / 2 - g.h / 2).toFixed(1)}px`);
-      set('--ps', Math.min(1.02, roomScale).toFixed(4));
-      // Oko se privikava: soba je u početku presvijetla, a pri ulasku dobija pune tonove.
-      set('--glare', (0.32 * (1 - f)).toFixed(3));
-      set('--blend', range(f, 0.75, 1).toFixed(3));
-      sticky.dataset.stage = p >= 0.985 ? 'inside' : p > 0.012 ? 'opening' : 'closed';
+      const Tx = (vx0 + vx1) / 2 + (g.vx - g.w / 2) * f;
+      const Ty = (vy0 + vy1) / 2 + (g.vy - g.h / 2) * f;
+      const need = Math.max((Tx - vx0) / g.vx, (vx1 - Tx) / (g.w - g.vx), (Ty - vy0) / g.vy, (vy1 - Ty) / (g.h - g.vy));
+      const roomScale = f >= 0.9995 ? 1 : Math.max(g.s0 + (1 - g.s0) * f, need * (1 + 0.012 * (1 - f)));
+      set('--px', `${(Tx - g.vx).toFixed(1)}px`);
+      set('--py', `${(Ty - g.vy).toFixed(1)}px`);
+      set('--ps', roomScale.toFixed(4));
+      // Oko se privikava: hodnik je u početku presvijetao, a pri ulasku dobija pune tonove.
+      set('--glare', (0.26 * (1 - f)).toFixed(3));
+      set('--arrive', arrive.toFixed(3));
+      sticky.dataset.stage = p >= 0.8 ? 'inside' : p > 0.012 ? 'opening' : 'closed';
     };
 
     /* Skrol daje cilj, a animacija ga prati s prigušenjem (kao Lenis): bez trzaja kod točkića miša. */
     const progress = () => {
       const rect = section.getBoundingClientRect();
-      const total = Math.max(1, rect.height - window.innerHeight);
+      const total = Math.max(1, rect.height - sticky.offsetHeight);
       return reduced ? 0 : clamp01(-rect.top / total);
     };
     let current = progress();
@@ -187,17 +205,20 @@ export function Entry() {
     };
   }, [reduced]);
 
-  /** „Otvori vrata”: mirno, vođeno skrolanje kroz cijelu animaciju (≈ 3,4 s), zatim u stranicu. */
+  /** „Otvori vrata”: mirno, vođeno skrolanje kroz animaciju (≈ 3,6 s) do hodnika; fokus ide na naslov hodnika. */
   const openDoor = () => {
     const section = sectionRef.current;
     if (!section || animating.current) return;
+    const heading = () => document.getElementById('hodnik-naslov');
     if (reduced) {
-      goTo('dobrodosli');
+      heading()?.scrollIntoView({ block: 'start' });
+      heading()?.focus({ preventScroll: true });
       return;
     }
+    const sticky = stickyRef.current;
     const start = window.scrollY;
-    const end = section.offsetTop + section.offsetHeight - window.innerHeight + 2;
-    const duration = 3400;
+    const end = section.offsetTop + (section.offsetHeight - (sticky?.offsetHeight ?? window.innerHeight)) * 0.93;
+    const duration = 3600;
     const t0 = performance.now();
     animating.current = true;
     const cancel = () => {
@@ -213,7 +234,8 @@ export function Entry() {
       if (k < 1) requestAnimationFrame(step);
       else {
         animating.current = false;
-        goTo('dobrodosli');
+        // Kraj animacije: hodnik je na ekranu, fokus na njegov naslov (tastatura i čitači ekrana nastavljaju odatle).
+        window.setTimeout(() => heading()?.focus({ preventScroll: true }), 450);
       }
     };
     requestAnimationFrame(step);
@@ -231,24 +253,14 @@ export function Entry() {
           <div ref={doorwayRef} className="entry__doorway" />
           <span className="entry__spill" />
         </div>
-        {/* Soba iza vrata (render istim materijalima i suncem): zaseban oštar sloj, uvijek izrezan na otvor. */}
-        <div className="entry__portal" aria-hidden="true">
-          <picture className="entry__room">
-            <source media="(orientation: portrait)" type="image/avif" srcSet="/images/madera/entry/room-mobile-720.avif 720w, /images/madera/entry/room-mobile-1080.avif 1080w" sizes="100vw" />
-            <source media="(orientation: portrait)" type="image/webp" srcSet="/images/madera/entry/room-mobile-720.webp 720w, /images/madera/entry/room-mobile-1080.webp 1080w" sizes="100vw" />
-            <source type="image/avif" srcSet="/images/madera/entry/room-desktop-1280.avif 1280w, /images/madera/entry/room-desktop-1920.avif 1920w" sizes="100vw" />
-            <img
-              src="/images/madera/entry/room-desktop-1920.webp"
-              srcSet="/images/madera/entry/room-desktop-1280.webp 1280w, /images/madera/entry/room-desktop-1920.webp 1920w"
-              sizes="100vw"
-              width={1920}
-              height={1200}
-              alt=""
-              decoding="async"
-              {...({ fetchpriority: 'low' } as Record<string, string>)}
-            />
-          </picture>
-        </div>
+        {/* Hodnik iza vrata: zaseban oštar sloj, uvijek izrezan na otvor; na kraju je to završni ekran ulaza. */}
+        {!reduced && (
+          <div className="entry__portal">
+            <div className="entry__room">
+              <CorridorScene />
+            </div>
+          </div>
+        )}
         {/* Prednji sloj: dubina štoka, sjena uz baglame i krilo s pravom kvakom koja se spušta. */}
         <div className="entry__scene entry__scene--front" aria-hidden="true">
           <div className="entry__hinge">
@@ -304,6 +316,12 @@ export function Entry() {
         </button>
         <p className="entry__note">Ilustracija ambijenta</p>
       </div>
+      {/* Uz smanjeno kretanje hodnik je obična sekcija ispod početne fotografije. */}
+      {reduced && (
+        <div className="entry__static-corridor">
+          <CorridorScene />
+        </div>
+      )}
     </section>
   );
 }

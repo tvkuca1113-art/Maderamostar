@@ -39,15 +39,4 @@ img = Image.composite(Image.new('L', (S, S), 0), img, leaves.point(lambda v: int
 img = img.filter(ImageFilter.GaussianBlur(7)).resize((512, 512), Image.LANCZOS)
 img.convert('RGB').save('public/textures/gobo-window.jpg', quality=88)
 
-# Samo krošnja (bez prozora) — za sobu iza vrata u scripts/render-room, gdje sjenu prozora baca stvarna geometrija.
-random.seed(11)
-leaves = Image.new('L', (S, S), 0)
-ld = ImageDraw.Draw(leaves)
-branch(-40, 760, -0.55, 300, 6)
-branch(1060, 200, 2.7, 240, 5)
-leaves = leaves.filter(ImageFilter.GaussianBlur(4))
-only = Image.new('L', (S, S), 255)
-only = Image.composite(Image.new('L', (S, S), 40), only, leaves.point(lambda v: int(v * 0.75)))
-only = only.filter(ImageFilter.GaussianBlur(5)).resize((512, 512), Image.LANCZOS)
-only.convert('RGB').save('scripts/render-room/gobo-leaves.jpg', quality=88)
 print('ok')
