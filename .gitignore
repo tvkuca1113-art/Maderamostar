@@ -6,3 +6,4 @@ test-results
 playwright-report
 screenshots/tmp
 *.tsbuildinfo
+scripts/render-room/out/

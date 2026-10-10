@@ -4,10 +4,10 @@ import { ArrowIcon } from './Header';
 
 /**
  * Početni ekran „Otvori vrata”: fotografija ambijenta s logom i menijem preko nje.
- * Na skrol ili klik brava „škljocne”, krilo se otvara oko baglama (desno, kvaka lijevo kao na originalu),
+ * Na skrol ili klik kvaka se spusti, brava „škljocne”, krilo se otvara oko baglama (desno, kvaka lijevo kao na originalu),
  * kamera se okrene prema otvoru i prođe kroz vrata u ostatak stranice.
- * Tehnika „portala”: fotografija se nikad ne uvećava do mutnoće — prostor iza vrata je zaseban oštar sloj
- * izrezan na oblik otvora, a kretanje prati skrol s prigušenjem (glatko i na točkiću miša).
+ * Tehnika „portala”: fotografija se nikad ne uvećava do mutnoće — soba iza vrata (render istim materijalima i suncem)
+ * je zaseban oštar sloj izrezan na oblik otvora, a kretanje prati skrol s prigušenjem (glatko i na točkiću miša).
  */
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -62,14 +62,14 @@ export function Entry() {
     const set = (k: string, v: string) => sticky.style.setProperty(k, v);
 
     /* Geometrija se mjeri jednom (bez kretanja kamere) i poslije samo preračunava — nema layouta po frameu. */
-    let g = { w: 1, h: 1, dx: 0, dy: 0, dw: 1, dh: 1, ox: 0, oy: 0, max: 6, s0: 0.5 };
+    let g = { w: 1, h: 1, dx: 0, dy: 0, dw: 1, dh: 1, ox: 0, oy: 0, max: 6, s0: 0.6, sx0: 0, sy0: 0, sx1: 1, sy1: 1 };
     const measure = () => {
       set('--zoom', '1');
       set('--tx', '0px');
       set('--ty', '0px');
       const s = sticky.getBoundingClientRect();
       const r = doorway.getBoundingClientRect();
-      const scene = doorway.parentElement?.getBoundingClientRect();
+      const scene = doorway.parentElement?.getBoundingClientRect() ?? s;
       const dw = Math.max(r.width, 1);
       const dh = Math.max(r.height, 1);
       g = {
@@ -83,46 +83,67 @@ export function Entry() {
         oy: r.top - s.top + dh / 2,
         // Kamera staje tek kad je otvor veći od ekrana — okvir izlazi iz kadra, ništa se ne „rasteže”.
         max: Math.max(s.width / dw, s.height / dh) * 1.18,
-        // Logo iza vrata u početku stane u otvor, a do kraja raste samo do prirodne veličine (paralaksa dubine).
-        s0: Math.min(1, (dw * 0.62) / Math.min(300, s.width * 0.62)),
+        // Soba iza vrata je dalje od kamere nego okvir: u otvoru je umanjena i raste sporije (paralaksa dubine).
+        s0: Math.min(1, Math.max(0.55, Math.max(dw / s.width, dh / s.height) * 1.04)),
+        // Rubovi fotografije (s produžetkom zida iznad nje, .entry__mirror = 28 % visine).
+        sx0: scene.left - s.left,
+        sy0: scene.top - s.top - scene.height * 0.28,
+        sx1: scene.right - s.left,
+        sy1: scene.bottom - s.top,
       };
       // Perspektiva odgovara kameri fotografije (žarišna daljina ≈ 0,9 × širina vodoravnog, 1,15 × uspravnog kadra).
-      if (scene) set('--persp', `${Math.round(scene.width * (scene.width > scene.height ? 0.9 : 1.15))}px`);
+      set('--persp', `${Math.round(scene.width * (scene.width > scene.height ? 0.9 : 1.15))}px`);
+    };
+
+    /** Pomak kamere ograničen tako da rub fotografije nikad ne uđe u kadar. */
+    const clampShift = (want: number, zoom: number, o: number, a: number, b: number, size: number) => {
+      const min = size - (o + (b - o) * zoom);
+      const max = -(o + (a - o) * zoom);
+      return min > max ? (min + max) / 2 : Math.min(max, Math.max(min, want));
     };
 
     const apply = (p: number) => {
-      const latch = easeOut(range(p, 0.03, 0.075));
-      const swing = ease(range(p, 0.075, 0.5));
+      // Ruka spusti kvaku, brava škljocne, krilo krene; kvaka se vraća dok se vrata otvaraju.
+      const press = easeOut(range(p, 0.012, 0.04));
+      const release = ease(range(p, 0.085, 0.14));
+      const latch = easeOut(range(p, 0.04, 0.08));
+      const swing = ease(range(p, 0.08, 0.5));
+      // Dok kamera prolazi, krilo se otvori do kraja i sakrije iza štoka (ne blijedi, ne „lebdi” ispred sobe).
+      const fully = ease(range(p, 0.5, 0.8));
       const turn = ease(range(p, 0.24, 0.74));
       const walk = ease(range(p, 0.28, 1));
       const zoom = Math.exp(Math.log(g.max) * walk);
       const f = (zoom - 1) / (g.max - 1);
-      const tx = (g.w / 2 - g.ox) * turn;
-      const ty = (g.h / 2 - g.oy) * turn;
+      const tx = clampShift((g.w / 2 - g.ox) * turn, zoom, g.ox, g.sx0, g.sx1, g.w);
+      const ty = clampShift((g.h / 2 - g.oy) * turn, zoom, g.oy, g.sy0, g.sy1, g.h);
       // Otvor na ekranu nakon kretanja kamere (skaliranje oko središta otvora + pomak).
       const left = g.ox + (g.dx - g.ox) * zoom + tx;
       const top = g.oy + (g.dy - g.oy) * zoom + ty;
       const right = left + g.dw * zoom;
       const bottom = top + g.dh * zoom;
-      const portalScale = g.s0 + (1 - g.s0) * f;
 
-      set('--angle', `${(-(3.5 * latch + 96.5 * swing)).toFixed(2)}deg`);
-      set('--open', swing.toFixed(3));
+      set('--lever', `${(32 * press * (1 - release)).toFixed(2)}deg`);
+      set('--angle', `${(-(3 * latch + 85 * swing + 27 * fully)).toFixed(2)}deg`);
+      set('--open', Math.max(swing, latch * 0.15).toFixed(3));
       set('--text', (1 - range(p, 0.015, 0.15)).toFixed(3));
       set('--zoom', zoom.toFixed(4));
       set('--tx', `${tx.toFixed(1)}px`);
       set('--ty', `${ty.toFixed(1)}px`);
-      set('--leaf-shift', `${((f * g.w * 0.35) / zoom).toFixed(1)}px`);
-      set('--leaf-fade', (1 - range(f, 0.35, 0.8)).toFixed(3));
-      set('--scene-fade', (1 - range(f, 0.82, 1)).toFixed(3));
+      set('--scene-fade', (1 - range(f, 0.84, 1)).toFixed(3));
       set('--clip', `${Math.max(0, top).toFixed(1)}px ${Math.max(0, g.w - right).toFixed(1)}px ${Math.max(0, g.h - bottom).toFixed(1)}px ${Math.max(0, left).toFixed(1)}px`);
-      set('--px', `${((left + right) / 2 - g.w / 2).toFixed(1)}px`);
-      set('--py', `${((top + bottom) / 2 - g.h / 2).toFixed(1)}px`);
-      set('--ps', portalScale.toFixed(4));
-      set('--far', (1 - f).toFixed(3));
-      // Logo se pokaže tek kad je krilo gotovo otvoreno — nikad nije presječen rubom krila.
-      set('--logo', range(swing, 0.8, 1).toFixed(3));
-      sticky.dataset.stage = p >= 0.985 ? 'inside' : p > 0.015 ? 'opening' : 'closed';
+      // Soba prekriva vidljivi dio otvora (otvor ∩ ekran); raste sporije od okvira, a na kraju je tačno preko ekrana.
+      const vx0 = Math.max(0, left);
+      const vy0 = Math.max(0, top);
+      const vx1 = Math.min(g.w, right);
+      const vy1 = Math.min(g.h, bottom);
+      const roomScale = Math.max(g.s0 + (1 - g.s0) * f, ((vx1 - vx0) / g.w) * 1.02, ((vy1 - vy0) / g.h) * 1.02);
+      set('--px', `${((vx0 + vx1) / 2 - g.w / 2).toFixed(1)}px`);
+      set('--py', `${((vy0 + vy1) / 2 - g.h / 2).toFixed(1)}px`);
+      set('--ps', Math.min(1.02, roomScale).toFixed(4));
+      // Oko se privikava: soba je u početku presvijetla, a pri ulasku dobija pune tonove.
+      set('--glare', (0.32 * (1 - f)).toFixed(3));
+      set('--blend', range(f, 0.75, 1).toFixed(3));
+      sticky.dataset.stage = p >= 0.985 ? 'inside' : p > 0.012 ? 'opening' : 'closed';
     };
 
     /* Skrol daje cilj, a animacija ga prati s prigušenjem (kao Lenis): bez trzaja kod točkića miša. */
@@ -166,7 +187,7 @@ export function Entry() {
     };
   }, [reduced]);
 
-  /** „Otvori vrata”: mirno, vođeno skrolanje kroz cijelu animaciju (≈ 2,4 s), zatim u stranicu. */
+  /** „Otvori vrata”: mirno, vođeno skrolanje kroz cijelu animaciju (≈ 3,4 s), zatim u stranicu. */
   const openDoor = () => {
     const section = sectionRef.current;
     if (!section || animating.current) return;
@@ -201,24 +222,48 @@ export function Entry() {
   return (
     <section ref={sectionRef} className={`entry${reduced ? ' entry--static' : ''}`} id="top" aria-labelledby="hero-naslov">
       <div ref={stickyRef} className="entry__sticky" data-stage="closed">
-        {/* Stražnji sloj: fotografija prostorije i svjetlo koje kroz otvor pada na pod. */}
+        {/* Stražnji sloj: fotografija prostorije (s produžetkom zida iznad) i svjetlo koje kroz otvor pada na pod. */}
         <div className="entry__scene entry__scene--back" aria-hidden="true">
+          <div className="entry__mirror">
+            <HeroPicture className="entry__photo" />
+          </div>
           <HeroPicture className="entry__photo" />
           <div ref={doorwayRef} className="entry__doorway" />
           <span className="entry__spill" />
         </div>
-        {/* Prostor iza vrata: zaseban, oštar sloj u koordinatama ekrana, uvijek izrezan na otvor. */}
+        {/* Soba iza vrata (render istim materijalima i suncem): zaseban oštar sloj, uvijek izrezan na otvor. */}
         <div className="entry__portal" aria-hidden="true">
-          <div className="entry__room">
-            <span className="entry__room-floor" />
-            <img className="entry__room-logo" src="/images/brand/madera-logo-light.svg" alt="" width={1232} height={490} />
-          </div>
+          <picture className="entry__room">
+            <source media="(orientation: portrait)" type="image/avif" srcSet="/images/madera/entry/room-mobile-720.avif 720w, /images/madera/entry/room-mobile-1080.avif 1080w" sizes="100vw" />
+            <source media="(orientation: portrait)" type="image/webp" srcSet="/images/madera/entry/room-mobile-720.webp 720w, /images/madera/entry/room-mobile-1080.webp 1080w" sizes="100vw" />
+            <source type="image/avif" srcSet="/images/madera/entry/room-desktop-1280.avif 1280w, /images/madera/entry/room-desktop-1920.avif 1920w" sizes="100vw" />
+            <img
+              src="/images/madera/entry/room-desktop-1920.webp"
+              srcSet="/images/madera/entry/room-desktop-1280.webp 1280w, /images/madera/entry/room-desktop-1920.webp 1920w"
+              sizes="100vw"
+              width={1920}
+              height={1200}
+              alt=""
+              decoding="async"
+              {...({ fetchpriority: 'low' } as Record<string, string>)}
+            />
+          </picture>
         </div>
-        {/* Prednji sloj: dubina štoka i krilo s kvakom (isječak iste fotografije). */}
+        {/* Prednji sloj: dubina štoka, sjena uz baglame i krilo s pravom kvakom koja se spušta. */}
         <div className="entry__scene entry__scene--front" aria-hidden="true">
           <div className="entry__hinge">
+            <span className="entry__ao" />
             <div className="entry__leaf">
-              <HeroPicture className="entry__leaf-photo" />
+              <picture className="entry__leaf-photo">
+                <source media="(max-width: 767px)" type="image/avif" srcSet="/images/madera/entry/leaf-mobile-331.avif" />
+                <source media="(max-width: 767px)" type="image/webp" srcSet="/images/madera/entry/leaf-mobile-331.webp" />
+                <source type="image/avif" srcSet="/images/madera/entry/leaf-desktop-308.avif" />
+                <img src="/images/madera/entry/leaf-desktop-308.webp" width={308} height={745} alt="" decoding="async" />
+              </picture>
+              <picture className="entry__lever">
+                <source media="(max-width: 767px)" srcSet="/images/madera/entry/lever-mobile.webp" />
+                <img src="/images/madera/entry/lever-desktop.webp" width={60} height={24} alt="" decoding="async" />
+              </picture>
               <span className="entry__leaf-shade" />
             </div>
           </div>

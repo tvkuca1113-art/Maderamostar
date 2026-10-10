@@ -282,6 +282,19 @@ describe('Početni ulaz i interaktivni konfigurator', () => {
     expect(screen.getByRole('heading', { name: /Iza dobrih vrata/ })).toBeInTheDocument();
   });
 
+  it('ulaz ima sobu iza vrata, krilo i zasebnu ručicu kvake — sve dekorativno (skriveno od čitača ekrana)', () => {
+    const { container } = render(<App />);
+    const entry = container.querySelector('#top') as HTMLElement;
+    const room = entry.querySelector('.entry__portal img');
+    const lever = entry.querySelector('.entry__lever img');
+    const leaf = entry.querySelector('.entry__leaf-photo img');
+    expect(room?.getAttribute('src')).toMatch(/\/images\/madera\/entry\/room-desktop/);
+    expect(lever?.getAttribute('src')).toMatch(/lever-desktop\.webp$/);
+    expect(leaf?.getAttribute('src')).toMatch(/leaf-desktop/);
+    [room, lever, leaf].forEach((img) => expect(img?.getAttribute('alt')).toBe(''));
+    expect(entry.querySelector('.entry__portal')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('broj vrata (− / +) i brze mjere ažuriraju izbor i sažetak', async () => {
     const user = userEvent.setup();
     render(<App />);
