@@ -1,14 +1,13 @@
-// Web izvedenice za ulaz kroz vrata: soba iza vrata (render), krilo i ručica.
-// Ulaz: scripts/render-room/out/ (render.mjs i make-entry-assets.py); izlaz: public/images/madera/entry/.
+// Web izvedenice za ulaz kroz vrata: hodnik iza vrata, krilo i ručica.
+// Ulaz: scripts/entry/hodnik-izvor.jpg i scripts/entry/out/ (make-entry-assets.py); izlaz: public/images/madera/entry/.
 import sharp from 'sharp';
 import { mkdir, stat } from 'node:fs/promises';
 
-const SRC = 'scripts/render-room/out';
+const SRC = 'scripts/entry/out';
 const OUT = 'public/images/madera/entry';
 await mkdir(OUT, { recursive: true });
 const jobs = [
-  { src: `${SRC}/room-desktop.png`, base: 'room-desktop', widths: [1280, 1920], q: [80, 56] },
-  { src: `${SRC}/room-mobile.png`, base: 'room-mobile', widths: [720, 1080], q: [80, 56] },
+  { src: 'scripts/entry/hodnik-izvor.jpg', base: 'hodnik', widths: [720, 1024], q: [84, 62] },
   { src: `${SRC}/leaf-desktop.png`, base: 'leaf-desktop', widths: [308], q: [88, 70] },
   { src: `${SRC}/leaf-mobile.png`, base: 'leaf-mobile', widths: [331], q: [88, 70] },
 ];
@@ -23,6 +22,12 @@ for (const { src, base, widths, q } of jobs) {
     const [a, b] = await Promise.all([stat(webp), stat(avif)]);
     console.log(`${base}-${w}: webp ${(a.size / 1024).toFixed(0)} kB, avif ${(b.size / 1024).toFixed(0)} kB`);
   }
+}
+// Zamućena pozadina hodnika za široke ekrane (sa strana fotografije).
+{
+  const file = `${OUT}/hodnik-ambient.webp`;
+  await sharp('scripts/entry/hodnik-izvor.jpg').resize(320, 200, { fit: 'cover', position: 'centre' }).blur(14).modulate({ brightness: 1.04 }).webp({ quality: 70 }).toFile(file);
+  console.log(`hodnik-ambient: webp ${((await stat(file)).size / 1024).toFixed(1)} kB`);
 }
 for (const name of ['desktop', 'mobile']) {
   const file = `${OUT}/lever-${name}.webp`;

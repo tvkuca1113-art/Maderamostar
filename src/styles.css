@@ -2462,19 +2462,26 @@ textarea {
 /* ---------- Ulaz „Otvori vrata” ---------- */
 .entry {
   position: relative;
-  height: 250vh;
-  height: 250svh;
+  /* Otvaranje, prolaz kroz vrata i zastoj u hodniku. */
+  height: 290vh;
+  height: 290svh;
   background: var(--canvas);
 }
 .entry--static {
+  height: auto;
+}
+.entry--static .entry__sticky {
+  position: relative;
   height: 100vh;
   height: 100svh;
 }
 .entry__sticky {
   position: sticky;
   top: 0;
+  /* Najveća visina ekrana: kad se traka preglednika na telefonu sakrije, ispod scene nema praznine. */
   height: 100vh;
-  height: 100svh;
+  height: 100lvh;
+  --bar: calc(100lvh - 100svh);
   overflow: hidden;
   container-type: size;
   --angle: 0deg;
@@ -2575,36 +2582,29 @@ textarea {
   clip-path: inset(var(--clip, 50%));
   pointer-events: none;
 }
+.entry__sticky[data-stage='inside'] .entry__portal {
+  pointer-events: auto;
+}
+/* Hodnik raste oko svog nedogleda (bijela vrata na kraju); na kraju je u mjerilu 1 i tačno na mjestu. */
 .entry__room {
   position: absolute;
   inset: 0;
-  display: block;
+  transform-origin: var(--vpx, 50%) var(--vpy, 50%);
   transform: translate3d(var(--px), var(--py), 0) scale(var(--ps));
   will-change: transform;
 }
-.entry__room img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-/* Iz tamnijeg hodnika soba djeluje presvijetlo; pri ulasku oko se privikne. */
+/* Iz sjenovitije sobe hodnik djeluje presvijetao; pri ulasku oko se privikne. */
 .entry__room::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(70% 60% at 45% 45%, rgb(255 251 243 / 1), rgb(255 248 236 / 0.6));
+  pointer-events: none;
+  background: radial-gradient(70% 60% at 50% 48%, rgb(255 251 243 / 1), rgb(255 248 236 / 0.6));
   opacity: var(--glare);
 }
-/* Na kraju se donji dio sobe stapa s podlogom sljedeće sekcije. */
-.entry__room::before {
-  content: '';
-  position: absolute;
-  inset: auto 0 0;
-  height: 30%;
-  z-index: 1;
-  background: linear-gradient(transparent, var(--canvas));
-  opacity: var(--blend);
+/* Kad se stigne u hodnik, tekst početnog ekrana više ne smije primati klikove ni fokus. */
+.entry__sticky[data-stage='inside'] :is(.entry__text, .entry__hint, .entry__note) {
+  visibility: hidden;
 }
 .entry__hinge {
   position: absolute;
@@ -2721,7 +2721,7 @@ textarea {
   position: absolute;
   z-index: 2;
   left: 50%;
-  bottom: max(18px, env(safe-area-inset-bottom));
+  bottom: calc(var(--bar, 0px) + max(18px, env(safe-area-inset-bottom)));
   transform: translateX(-50%);
   display: grid;
   justify-items: center;
@@ -2759,7 +2759,7 @@ textarea {
 .entry__note {
   position: absolute;
   right: 16px;
-  bottom: 14px;
+  bottom: calc(var(--bar, 0px) + 14px);
   z-index: 2;
   font-size: 12px;
   color: #4d4a43;
@@ -2852,7 +2852,7 @@ textarea {
   }
   .entry__note {
     right: 10px;
-    bottom: 12px;
+    bottom: calc(var(--bar, 0px) + 12px);
     font-size: 11px;
   }
   /* Na telefonu su vrata desno pri dnu: poziv na skrol ide lijevo, da ne prekriva krilo. */
@@ -2872,6 +2872,313 @@ textarea {
 }
 @media (prefers-reduced-motion: reduce) {
   .entry__hint-line {
+    animation: none;
+  }
+}
+
+/* ---------- Hodnik iza vrata (završni ekran ulaza) ---------- */
+.entry__static-corridor {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 560px;
+  container-type: size;
+}
+.entry__static-corridor .corridor {
+  --arrive: 1;
+}
+.corridor {
+  position: absolute;
+  inset: 0;
+  background: var(--canvas);
+  /* Telefon: fotografija ispod menija preko cijele širine (najviše ≈ 11 % obrezano sa strana), ispod nje poziv. */
+  --fh: min(calc(100cqw * 1.1523 * 1.12), calc(100svh - var(--header-h) - 190px));
+  --pw: max(100cqw, calc(var(--fh) * 0.8678));
+  --ph: calc(var(--pw) * 1.1523);
+}
+/* Pojas iza menija: dok kamera ulazi, nastavlja strop hodnika (nema svijetle trake u otvoru); na kraju je podloga. */
+.corridor::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(var(--header-h) + 2px);
+  background: linear-gradient(90deg, #b3977b, #bfa284 12%, #deccb8 25%, #ecdece 40%, #ecdecd 60%, #dcc9b5 72%, #c4ae99 85%, #a18871);
+  opacity: calc(1 - var(--arrive, 1));
+}
+.corridor__ambient {
+  display: none;
+}
+.corridor__frame {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--header-h);
+  height: var(--fh);
+  overflow: hidden;
+}
+/* Donji rub fotografije se meko stapa s podlogom, kao na prijedlogu. */
+.corridor__frame::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 16%;
+  pointer-events: none;
+  background: linear-gradient(rgb(247 244 238 / 0), var(--canvas));
+}
+.corridor__photo {
+  position: absolute;
+  width: var(--pw);
+  height: var(--ph);
+  left: calc(50% - var(--pw) / 2);
+  top: calc(50% - var(--ph) / 2);
+}
+.corridor__photo picture,
+.corridor__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.corridor__ui {
+  opacity: var(--arrive, 1);
+}
+.entry__sticky:not([data-stage='inside']) .corridor__ui {
+  visibility: hidden;
+}
+.corridor__head {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4.4%;
+  padding: 0 10%;
+  text-align: center;
+  transform: translateY(calc((1 - var(--arrive, 1)) * 12px));
+}
+.corridor__eyebrow {
+  font-size: max(11px, calc(var(--pw) * 0.0165));
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #4d4840;
+}
+.corridor__title {
+  margin: 0.35em 0 0;
+  font-family: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  font-variation-settings: 'opsz' 72;
+  font-weight: 420;
+  font-size: max(34px, calc(var(--pw) * 0.088));
+  line-height: 1.02;
+  letter-spacing: -0.014em;
+  color: #2a2824;
+  /* Dva reda kao na prijedlogu: „Uđite u svoj / izbor.” */
+  max-width: 6.6em;
+  margin-inline: auto;
+}
+.corridor__title:focus {
+  outline: none;
+}
+.corridor__title:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 6px;
+}
+.corridor__spots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.corridor__spots li {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+/* Tačka na vratima: središte prstena je tačno na koordinati, natpis desno; dodirna površina ≥ 44 px. */
+.corridor__spot {
+  position: absolute;
+  left: -22px;
+  top: -22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgb(40 26 12 / 0.45);
+  cursor: pointer;
+}
+.corridor__spots .is-flipped .corridor__spot {
+  left: auto;
+  right: -22px;
+  flex-direction: row-reverse;
+  padding: 0 11px 0 10px;
+}
+.corridor__ring {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 6px rgb(40 26 12 / 0.35);
+  flex: none;
+}
+.corridor__ring::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid rgb(255 255 255 / 0.8);
+  animation: corridor-pulse 2.4s ease-out infinite;
+}
+@keyframes corridor-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  70%,
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+.corridor__spot:hover .corridor__ring,
+.corridor__spot:focus-visible .corridor__ring {
+  background: rgb(255 255 255 / 0.35);
+}
+.corridor__spot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.corridor__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--header-h) + var(--fh));
+  height: calc(100svh - var(--header-h) - var(--fh));
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 0 20px 8px;
+  text-align: center;
+  transform: translateY(calc((1 - var(--arrive, 1)) * 14px));
+}
+.corridor__foot p {
+  margin: 0;
+  font-size: 15px;
+  color: #6b665d;
+}
+.corridor__cta {
+  width: min(100%, 420px);
+  min-height: 56px;
+  justify-content: space-between;
+  padding: 0 24px 0 28px;
+  font-family: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  font-variation-settings: 'opsz' 36;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+/* Nizak ekran (mali telefon): bez nadnaslova, naslov manji, da stane iznad vrata. */
+@container (max-height: 640px) and (orientation: portrait) {
+  .corridor__eyebrow {
+    display: none;
+  }
+  .corridor__title {
+    font-size: 30px;
+  }
+}
+/* Uski ekran: natpis ispod tačke (vrata su preblizu za natpise sa strane). */
+@container (max-width: 559px) {
+  .corridor__spot,
+  .corridor__spots .is-flipped .corridor__spot {
+    left: 0;
+    right: auto;
+    top: -22px;
+    transform: translateX(-50%);
+    flex-direction: column;
+    gap: 3px;
+    padding: 11px 6px 4px;
+    min-height: 0;
+    font-size: 14px;
+  }
+}
+/* Desktop i položen ekran: fotografija u punoj visini u sredini, sa strane isti prostor zamućen. */
+@container (orientation: landscape) {
+  .corridor {
+    --fh: calc(100svh - var(--header-h));
+    --pw: calc(var(--fh) * 0.8678);
+    --ph: var(--fh);
+  }
+  .corridor::before {
+    display: none;
+  }
+  .corridor__ambient {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: url('/images/madera/entry/hodnik-ambient.webp') center / cover no-repeat;
+  }
+  .corridor__ambient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(247 244 238 / 0.55), rgb(247 244 238 / 0.25) 50%, rgb(247 244 238 / 0.55));
+  }
+  .corridor__frame {
+    left: calc(50% - var(--pw) / 2);
+    right: auto;
+    width: var(--pw);
+    box-shadow: 0 30px 90px rgb(60 40 20 / 0.22);
+  }
+  .corridor__frame::after {
+    height: 32%;
+  }
+  .corridor__foot {
+    top: auto;
+    bottom: 0;
+    left: calc(50% - var(--pw) / 2);
+    right: auto;
+    width: var(--pw);
+    height: auto;
+    padding: 0 24px max(28px, calc(var(--fh) * 0.045));
+  }
+}
+/* Telefon položeno (nizak, širok ekran): manje teksta, natpisi ispod tačaka, kompaktno dugme. */
+@container (orientation: landscape) and (max-height: 520px) {
+  .corridor__eyebrow,
+  .corridor__foot p {
+    display: none;
+  }
+  .corridor__title {
+    font-size: 26px;
+  }
+  .corridor__spot,
+  .corridor__spots .is-flipped .corridor__spot {
+    left: 0;
+    right: auto;
+    top: -22px;
+    transform: translateX(-50%);
+    flex-direction: column;
+    gap: 2px;
+    padding: 11px 4px 2px;
+    min-height: 0;
+    font-size: 12px;
+  }
+  .corridor__cta {
+    min-height: 44px;
+    font-size: 17px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .corridor__ring::after {
     animation: none;
   }
 }

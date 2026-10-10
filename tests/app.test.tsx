@@ -282,17 +282,24 @@ describe('Početni ulaz i interaktivni konfigurator', () => {
     expect(screen.getByRole('heading', { name: /Iza dobrih vrata/ })).toBeInTheDocument();
   });
 
-  it('ulaz ima sobu iza vrata, krilo i zasebnu ručicu kvake — sve dekorativno (skriveno od čitača ekrana)', () => {
+  it('ulaz: iza vrata je hodnik; krilo i ručica su dekorativni, tačke na vratima biraju model', async () => {
+    const user = userEvent.setup();
     const { container } = render(<App />);
     const entry = container.querySelector('#top') as HTMLElement;
-    const room = entry.querySelector('.entry__portal img');
+    const corridor = entry.querySelector('.entry__portal .corridor__photo img');
     const lever = entry.querySelector('.entry__lever img');
     const leaf = entry.querySelector('.entry__leaf-photo img');
-    expect(room?.getAttribute('src')).toMatch(/\/images\/madera\/entry\/room-desktop/);
-    expect(lever?.getAttribute('src')).toMatch(/lever-desktop\.webp$/);
-    expect(leaf?.getAttribute('src')).toMatch(/leaf-desktop/);
-    [room, lever, leaf].forEach((img) => expect(img?.getAttribute('alt')).toBe(''));
-    expect(entry.querySelector('.entry__portal')?.getAttribute('aria-hidden')).toBe('true');
+    expect(corridor?.getAttribute('src')).toMatch(/\/images\/madera\/entry\/hodnik-1024\.webp$/);
+    expect(corridor?.getAttribute('alt')).toMatch(/hodnik s troje vrata/);
+    expect(lever?.getAttribute('alt')).toBe('');
+    expect(leaf?.getAttribute('alt')).toBe('');
+    expect(within(entry).getByRole('heading', { level: 2, name: 'Uđite u svoj izbor.' })).toBeInTheDocument();
+    expect(within(entry).getByRole('button', { name: /Hrast: istražite model Hrast furnir H/ })).toBeInTheDocument();
+    expect(within(entry).getByRole('button', { name: /Bijela: istražite model Sara/ })).toBeInTheDocument();
+
+    await user.click(within(entry).getByRole('button', { name: /Skrivena: istražite model Skrivena vrata/ }));
+    await flush();
+    expect(within(konf()).getByRole('radio', { name: 'Skrivena vrata' })).toBeChecked();
   });
 
   it('broj vrata (− / +) i brze mjere ažuriraju izbor i sažetak', async () => {
