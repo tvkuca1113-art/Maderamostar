@@ -277,8 +277,9 @@ describe('Početni ulaz i interaktivni konfigurator', () => {
   it('početni ekran ima logo, naslov i akciju „Otvori vrata”', () => {
     render(<App />);
     expect(screen.getAllByRole('img', { name: 'Madera' }).length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { level: 1, name: /Svaki dom počinje vratima/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Otvori vrata/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /Otvorite vrata svom stilu/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Otvori i istraži' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Otvori vrata pomoću kvake' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Iza dobrih vrata/ })).toBeInTheDocument();
   });
 
@@ -293,7 +294,7 @@ describe('Početni ulaz i interaktivni konfigurator', () => {
     expect(corridor?.getAttribute('alt')).toMatch(/hodnik s troje vrata/);
     expect(lever?.getAttribute('alt')).toBe('');
     expect(leaf?.getAttribute('alt')).toBe('');
-    expect(within(entry).getByRole('heading', { level: 2, name: 'Uđite u svoj izbor.' })).toBeInTheDocument();
+    expect(within(entry).getByRole('heading', { level: 2, name: 'Pronađite svoj stil.' })).toBeInTheDocument();
     expect(within(entry).getByRole('button', { name: /Hrast: istražite model Hrast furnir H/ })).toBeInTheDocument();
     expect(within(entry).getByRole('button', { name: /Bijela: istražite model Sara/ })).toBeInTheDocument();
 

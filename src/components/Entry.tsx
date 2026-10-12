@@ -22,27 +22,27 @@ function HeroPicture({ className }: { className?: string }) {
       <source
         media="(max-width: 767px)"
         type="image/avif"
-        srcSet="/images/madera/opt/hero-hrast-mobile-640.avif 640w, /images/madera/opt/hero-hrast-mobile-1024.avif 1024w"
+        srcSet="/images/madera/entry-v2/hero-mobile-640.avif 640w, /images/madera/entry-v2/hero-mobile-1024.avif 1024w"
         sizes="150vw"
       />
       <source
         media="(max-width: 767px)"
         type="image/webp"
-        srcSet="/images/madera/opt/hero-hrast-mobile-640.webp 640w, /images/madera/opt/hero-hrast-mobile-1024.webp 1024w"
+        srcSet="/images/madera/entry-v2/hero-mobile-640.webp 640w, /images/madera/entry-v2/hero-mobile-1024.webp 1024w"
         sizes="150vw"
       />
-      <source media="(max-width: 767px)" srcSet="/images/madera/hero-hrast-mobile.png" />
+      <source media="(max-width: 767px)" srcSet="/images/madera/entry-v2/hero-mobile-1024.webp" />
       <source
         type="image/avif"
-        srcSet="/images/madera/opt/hero-hrast-desktop-960.avif 960w, /images/madera/opt/hero-hrast-desktop-1440.avif 1440w, /images/madera/opt/hero-hrast-desktop-1672.avif 1672w"
+        srcSet="/images/madera/entry-v2/hero-desktop-960.avif 960w, /images/madera/entry-v2/hero-desktop-1440.avif 1440w, /images/madera/entry-v2/hero-desktop-1672.avif 1672w"
         sizes="110vw"
       />
       <source
         type="image/webp"
-        srcSet="/images/madera/opt/hero-hrast-desktop-960.webp 960w, /images/madera/opt/hero-hrast-desktop-1440.webp 1440w, /images/madera/opt/hero-hrast-desktop-1672.webp 1672w"
+        srcSet="/images/madera/entry-v2/hero-desktop-960.webp 960w, /images/madera/entry-v2/hero-desktop-1440.webp 1440w, /images/madera/entry-v2/hero-desktop-1672.webp 1672w"
         sizes="110vw"
       />
-      <img src="/images/madera/hero-hrast-desktop.png" width={1672} height={941} alt="" decoding="async" {...({ fetchpriority: 'high' } as Record<string, string>)} />
+      <img src="/images/madera/entry-v2/hero-desktop-1672.webp" width={1672} height={941} alt="" decoding="async" {...({ fetchpriority: 'high' } as Record<string, string>)} />
     </picture>
   );
 }
@@ -54,6 +54,12 @@ export function Entry() {
   const doorwayRef = useRef<HTMLDivElement>(null);
   const [reduced] = useState(prefersReducedMotion);
   const animating = useRef(false);
+  const playback = useRef(0);
+  const cancelPlayback = useRef<(() => void) | null>(null);
+  const pose = useRef(0);
+  const drive = useRef<((p: number) => void) | null>(null);
+
+  useEffect(() => () => cancelPlayback.current?.(), []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -82,6 +88,8 @@ export function Entry() {
       const scene = doorway.parentElement?.getBoundingClientRect() ?? s;
       const dw = Math.max(r.width, 1);
       const dh = Math.max(r.height, 1);
+      // 4,4 cm krilo / 80 cm širina: debljina ostaje proporcionalna i na telefonu.
+      set('--depth', `${(dw * 0.055).toFixed(2)}px`);
       g = {
         w: s.width,
         h: s.height,
@@ -115,15 +123,16 @@ export function Entry() {
     };
 
     const apply = (p: number) => {
+      pose.current = p;
       // Ruka spusti kvaku, brava škljocne, krilo krene; kvaka se vraća dok se vrata otvaraju.
-      const press = easeOut(range(p, 0.012, 0.04));
-      const release = ease(range(p, 0.085, 0.14));
-      const latch = easeOut(range(p, 0.04, 0.08));
-      const swing = ease(range(p, 0.08, 0.5));
+      const press = easeOut(range(p, 0.015, 0.065));
+      const release = ease(range(p, 0.12, 0.22));
+      const latch = easeOut(range(p, 0.065, 0.11));
+      const swing = ease(range(p, 0.11, 0.58));
       // Dok kamera prolazi, krilo se otvori do kraja i sakrije iza štoka (ne blijedi, ne „lebdi” ispred sobe).
-      const fully = ease(range(p, 0.48, 0.74));
-      const turn = ease(range(p, 0.22, 0.7));
-      const walk = ease(range(p, 0.26, 0.84));
+      const fully = ease(range(p, 0.56, 0.77));
+      const turn = ease(range(p, 0.29, 0.74));
+      const walk = ease(range(p, 0.36, 0.86));
       // Dolazak: naslov, tačke na vratima i dugme se pojave; ostatak skrola je zastoj za razgledanje.
       const arrive = ease(range(p, 0.8, 0.92));
       const zoom = Math.exp(Math.log(g.max) * walk);
@@ -136,10 +145,11 @@ export function Entry() {
       const right = left + g.dw * zoom;
       const bottom = top + g.dh * zoom;
 
-      set('--lever', `${(32 * press * (1 - release)).toFixed(2)}deg`);
-      set('--angle', `${(-(3 * latch + 85 * swing + 27 * fully)).toFixed(2)}deg`);
+      set('--lever', `${(26 * press * (1 - release)).toFixed(2)}deg`);
+      set('--angle', `${(-(3 * latch + 84 * swing + 18 * fully)).toFixed(2)}deg`);
       set('--open', Math.max(swing, latch * 0.15).toFixed(3));
-      set('--text', (1 - range(p, 0.015, 0.15)).toFixed(3));
+      set('--text', (1 - ease(range(p, 0.04, 0.24))).toFixed(3));
+      set('--shadow-turn', `${(12 + 42 * swing).toFixed(2)}deg`);
       set('--zoom', zoom.toFixed(4));
       set('--tx', `${tx.toFixed(1)}px`);
       set('--ty', `${ty.toFixed(1)}px`);
@@ -174,6 +184,13 @@ export function Entry() {
     let target = current;
     let raf = 0;
     let last = 0;
+    drive.current = (p) => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      last = 0;
+      current = target = p;
+      apply(p);
+    };
     const tick = (now: number) => {
       const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
       last = now;
@@ -184,12 +201,13 @@ export function Entry() {
       if (!raf) last = 0;
     };
     const onScroll = () => {
+      if (animating.current) return;
       target = progress();
       if (!raf) raf = requestAnimationFrame(tick);
     };
     const onResize = () => {
       measure();
-      current = target = progress();
+      current = target = animating.current ? pose.current : progress();
       apply(current);
     };
     // Mjerenje tek kad se slika učita (stvarne dimenzije scene).
@@ -201,11 +219,13 @@ export function Entry() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      img?.removeEventListener('load', onResize);
       if (raf) cancelAnimationFrame(raf);
+      drive.current = null;
     };
   }, [reduced]);
 
-  /** „Otvori vrata”: mirno, vođeno skrolanje kroz animaciju (≈ 3,6 s) do hodnika; fokus ide na naslov hodnika. */
+  /** Kratak ulazak: prvo kvaka, zatim krilo, pa kamera. Korisnik može odmah prekinuti skrolanjem. */
   const openDoor = () => {
     const section = sectionRef.current;
     if (!section || animating.current) return;
@@ -216,29 +236,47 @@ export function Entry() {
       return;
     }
     const sticky = stickyRef.current;
-    const start = window.scrollY;
-    const end = section.offsetTop + (section.offsetHeight - (sticky?.offsetHeight ?? window.innerHeight)) * 0.93;
-    const duration = 3600;
+    const travel = section.offsetHeight - (sticky?.offsetHeight ?? window.innerHeight);
+    const start = pose.current;
+    const end = Math.max(start, 0.93);
+    const duration = 2800;
     const t0 = performance.now();
     animating.current = true;
-    const cancel = () => {
+    const stop = () => {
       animating.current = false;
+      cancelAnimationFrame(playback.current);
+      window.removeEventListener('wheel', cancel);
+      window.removeEventListener('touchstart', cancel);
+      window.removeEventListener('keydown', interruptKey);
+      cancelPlayback.current = null;
     };
+    const cancel = () => {
+      stop();
+      // Na prekidu poravnati skrol s upravo prikazanim položajem, bez vraćanja zatvorenih vrata.
+      window.scrollTo({ top: section.offsetTop + travel * pose.current, behavior: 'instant' });
+    };
+    const interruptKey = (e: KeyboardEvent) => {
+      if (['Escape', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) cancel();
+    };
+    cancelPlayback.current = stop;
     window.addEventListener('wheel', cancel, { once: true, passive: true });
     window.addEventListener('touchstart', cancel, { once: true, passive: true });
+    window.addEventListener('keydown', interruptKey);
     const step = (now: number) => {
       if (!animating.current) return;
       const k = Math.min(1, (now - t0) / duration);
       const e = ease(k);
-      window.scrollTo({ top: start + (end - start) * e, behavior: 'instant' });
-      if (k < 1) requestAnimationFrame(step);
+      // Klik animira scenu direktno. Skrol se poravna samo na kraju, umjesto preslagivanja stranice u svakom kadru.
+      drive.current?.(start + (end - start) * e);
+      if (k < 1) playback.current = requestAnimationFrame(step);
       else {
-        animating.current = false;
+        window.scrollTo({ top: section.offsetTop + travel * end, behavior: 'instant' });
+        stop();
         // Kraj animacije: hodnik je na ekranu, fokus na njegov naslov (tastatura i čitači ekrana nastavljaju odatle).
         window.setTimeout(() => heading()?.focus({ preventScroll: true }), 450);
       }
     };
-    requestAnimationFrame(step);
+    playback.current = requestAnimationFrame(step);
   };
 
   return (
@@ -263,6 +301,7 @@ export function Entry() {
         )}
         {/* Prednji sloj: dubina štoka, sjena uz baglame i krilo s pravom kvakom koja se spušta. */}
         <div className="entry__scene entry__scene--front" aria-hidden="true">
+          <span className="entry__moving-shadow" />
           <div className="entry__hinge">
             <span className="entry__ao" />
             <div className="entry__leaf">
@@ -277,41 +316,55 @@ export function Entry() {
                 <img src="/images/madera/entry/lever-desktop.webp" width={60} height={24} alt="" decoding="async" />
               </picture>
               <span className="entry__leaf-shade" />
+              <div className="entry__leaf-back" />
+              <span className="entry__edge entry__edge--free" />
+              <span className="entry__edge entry__edge--hinge" />
+              <span className="entry__edge entry__edge--top" />
+              <span className="entry__edge entry__edge--bottom" />
             </div>
           </div>
           <span className="entry__jamb" />
         </div>
 
+        <div className="entry__scene entry__scene--interaction">
+          <button type="button" className="entry__handle-hit" aria-label="Otvori vrata pomoću kvake" onClick={openDoor}>
+            <span className="entry__handle-label">Dodirnite kvaku</span>
+          </button>
+        </div>
+
         <div className="entry__text">
-          <p className="eyebrow">Madera · Sobna vrata po mjeri · Mostar</p>
+          <p className="eyebrow">Madera · Sobna vrata po mjeri</p>
           <h1 id="hero-naslov" className="entry__title">
-            Svaki dom
-            <br />
-            počinje vratima.
+            <span>Otvorite vrata</span>{' '}
+            <em>svom stilu.</em>
           </h1>
-          <p className="entry__lead">
-            Izrađujemo, dopremamo i montiramo sobna vrata po mjeri u Hercegovini. Izaberite izgled, pogledajte ga u 3D i pošaljite jedan upit za cijeli dom.
+          <p className="entry__lead entry__lead--desktop">
+            Od toplog hrasta do skrivenih izvedbi. Izaberite izgled svojih vrata — mi brinemo o izradi i montaži.
+          </p>
+          <p className="entry__lead entry__lead--mobile">
+            Sobna vrata po mjeri. Izrada i montaža u Hercegovini.
           </p>
           <div className="entry__actions">
             <button type="button" className="btn btn--primary btn--lg" onClick={openDoor}>
-              Otvori vrata
+              Otvori i istraži
               <ArrowIcon />
             </button>
             <a
-              href="#konfigurator"
+              href="#modeli"
               className="btn btn--ghost btn--lg"
               onClick={(e) => {
                 e.preventDefault();
-                goTo('konfigurator');
+                goTo('modeli');
               }}
             >
-              Kreiraj svoj izbor
+              Pogledaj modele
             </a>
           </div>
+          <p className="entry__signature"><span>Po mjeri</span><span>Po vašem ukusu</span><span>Mostar · Hercegovina</span></p>
         </div>
 
         <button type="button" className="entry__hint" onClick={openDoor}>
-          <span>Skrolajte i uđite</span>
+          <span>Jedan pokret. Novi prostor.</span>
           <span className="entry__hint-line" aria-hidden="true" />
         </button>
         <p className="entry__note">Ilustracija ambijenta</p>

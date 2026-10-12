@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: { host: '0.0.0.0', allowedHosts: ['terminal.local'] },
   // 3D viewer (three.js) je zaseban, lijeno učitan dio i ne ulazi u početno učitavanje.
   build: { chunkSizeWarningLimit: 1100 },
   test: {

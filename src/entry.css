@@ -1,0 +1,121 @@
+/* Madera ulaz: fotografija ambijenta, prostorno krilo i pravi HTML tekst. */
+.entry { height: 235vh; height: 235svh; }
+.entry__sticky { height: 100vh; height: 100svh; --bar: 0px; --depth: 14px; }
+.entry__text { padding-top: calc(var(--header-h) + clamp(42px, 9vh, 100px)); }
+.entry__text > * { max-width: 580px; }
+.entry__title { font-size: clamp(48px, 4.75vw, 78px); font-weight: 650; line-height: 1.08; letter-spacing: -.055em; margin: 24px 0 22px; }
+.entry__title span, .entry__title em { display: block; }
+.entry__title em { font-family: 'Newsreader Variable', Georgia, serif; font-size: 1.3em; font-weight: 430; font-style: italic; font-variation-settings: 'opsz' 72; letter-spacing: -.04em; color: #8e3327; line-height: 1.03; margin-top: 3px; }
+.entry__lead { max-width: 395px; font-size: clamp(17px, 1.3vw, 20px); line-height: 1.65; color: #575044; }
+.entry__lead--mobile { display: none; }
+.entry__actions { align-items: center; margin-top: 30px; gap: 22px; }
+.entry__actions .btn--primary { padding-inline: 27px; min-height: 56px; border-radius: 5px; box-shadow: 0 6px 20px rgb(129 39 31 / 12%); }
+.entry__actions .btn--ghost { background: none; border: 0; border-radius: 0; padding: 0 0 5px; min-height: 0; border-bottom: 1px solid #9d9181; font-size: 15px; }
+.entry__signature { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 35px; font-size: 12px; color: #736959; }
+.entry__signature span + span { border-left: 1px solid #c6baaa; padding-left: 14px; }
+.entry__hint { left: var(--gutter); transform: none; justify-items: start; font-size: 10px; letter-spacing: .19em; bottom: 28px; }
+.entry__hint-line { height: 27px; }
+.entry__note { border-radius: 2px; background: rgb(247 244 238 / 65%); font-size: 10px; bottom: 23px; }
+
+/* Debljina je geometrija, a ne nacrtana sjena na ravnoj fotografiji.
+   Baglame ostaju na desnoj ivici; lijevi slobodni brid putuje u prostor. */
+.entry__leaf { overflow: visible; transform-style: preserve-3d; backface-visibility: visible; box-shadow: none; }
+.entry__leaf-photo { backface-visibility: hidden; transform: translateZ(.2px); }
+.entry__leaf-photo img { filter: brightness(calc(1 - var(--open) * .16)); }
+.entry__lever { transform: translateZ(2px) rotate(var(--lever)); backface-visibility: hidden; }
+.entry__leaf-shade { transform: translateZ(2.5px); backface-visibility: hidden; }
+.entry__leaf-back { position: absolute; inset: 0; transform: translateZ(calc(var(--depth) * -1)) rotateY(180deg); background: url('/images/madera/entry/leaf-desktop-308.webp') center / 100% 100%; backface-visibility: hidden; filter: brightness(.72); }
+.entry__edge { position: absolute; display: block; background: url('/images/madera/entry/leaf-desktop-308.webp') center / cover; backface-visibility: hidden; }
+.entry__edge--free { left: 0; top: 0; width: var(--depth); height: 100%; transform-origin: left center; transform: rotateY(90deg); filter: brightness(.65); }
+.entry__edge--hinge { left: 100%; top: 0; width: var(--depth); height: 100%; transform-origin: left center; transform: rotateY(90deg); filter: brightness(.48); }
+.entry__edge--top { left: 0; top: 0; width: 100%; height: var(--depth); transform-origin: center top; transform: rotateX(-90deg); filter: brightness(.75); }
+.entry__edge--bottom { left: 0; top: 100%; width: 100%; height: var(--depth); transform-origin: center top; transform: rotateX(-90deg); filter: brightness(.45); }
+.entry__jamb { opacity: min(1, calc(var(--open) * 4)); width: calc(var(--leaf-w) * .052); left: calc(var(--leaf-l) + var(--leaf-w) * .948); }
+.entry__moving-shadow { position: absolute; left: calc(var(--leaf-l) - var(--leaf-w) * .7); top: calc(var(--leaf-t) + var(--leaf-h) - .15%); width: calc(var(--leaf-w) * 1.7); height: 9%; transform-origin: 100% 0; transform: skewX(var(--shadow-turn, 12deg)) scaleY(calc(.5 + var(--open) * .5)); background: linear-gradient(rgb(57 34 17 / 22%), transparent); filter: blur(9px); opacity: calc(var(--open) * .65); }
+.entry__scene--interaction { pointer-events: none; z-index: 3; }
+.entry__handle-hit { position: absolute; left: calc(var(--leaf-l) - 1.5%); top: calc(var(--leaf-t) + var(--leaf-h) * .405); width: calc(var(--leaf-w) * .28); height: calc(var(--leaf-h) * .17); min-width: 44px; min-height: 44px; background: transparent; border: 0; padding: 0; cursor: pointer; pointer-events: auto; opacity: var(--text); }
+.entry__handle-label { position: absolute; top: 50%; right: calc(100% + 16px); white-space: nowrap; display: flex; align-items: center; gap: 12px; font-size: 11px; font-weight: 600; color: #716350; opacity: .8; transition: opacity .2s; }
+.entry__handle-label::after { content: ''; width: 35px; height: 1px; background: #a38d70; }
+.entry__handle-hit:hover .entry__handle-label, .entry__handle-hit:focus-visible .entry__handle-label { opacity: 1; color: var(--brand); }
+.entry__handle-hit:focus-visible { outline: 2px solid var(--brand); outline-offset: 6px; border-radius: 4px; }
+.entry__sticky[data-stage='opening'] .entry__scene--interaction, .entry__sticky[data-stage='inside'] .entry__scene--interaction { visibility: hidden; }
+.entry__text { pointer-events: none; }
+.entry__actions > * { pointer-events: auto; }
+.entry__sticky[data-stage='inside'] .entry__actions > * { pointer-events: none; }
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .entry__text > * { max-width: 490px; }
+  .entry__title { font-size: clamp(44px, 5.5vw, 60px); }
+  .entry__lead { max-width: 340px; }
+  .entry__handle-label { display: none; }
+}
+@media (max-width: 767px) {
+  .entry { height: 210vh; height: 210svh; background: #eadfce; }
+  .entry__sticky { --text-zone: calc(var(--header-h) + 245px); --s: max(calc((100cqh - var(--text-zone) - 38px) / 840), calc(100cqw / 1024)); }
+  .entry__scene { left: max(calc(100cqw - var(--s) * 1024), calc(45cqw - var(--s) * 652.5)); }
+  .entry__text { padding: calc(var(--header-h) + 12px) 22px 0; }
+  .entry .eyebrow { font-size: 10px; letter-spacing: .17em; }
+  .entry__title { font-size: clamp(31px, 8.8vw, 39px); margin: 12px 0 10px; line-height: 1.05; }
+  .entry__title em { font-size: 1.3em; margin-top: 1px; }
+  .entry__lead--desktop { display: none; }
+  .entry__lead--mobile { display: block; max-width: 310px; font-size: 14px; line-height: 1.45; }
+  .entry__actions { margin-top: 16px; gap: 16px; }
+  .entry__actions .btn--primary { min-height: 46px; font-size: 14px; padding-inline: 18px; }
+  .entry__actions .btn--ghost { font-size: 12px; }
+  .entry__signature { display: none; }
+  .entry__hint { left: 22px; bottom: 23px; max-width: 125px; font-size: 9px; line-height: 1.5; }
+  .entry__hint-line { height: 22px; }
+  .entry__note { bottom: 17px; font-size: 9px; }
+  .entry__handle-label { right: auto; left: 0; top: 96%; transform: translateX(-20%); font-size: 10px; gap: 6px; background: rgb(247 244 238 / 80%); padding: 4px 7px; border-radius: 2px; }
+  .entry__handle-label::after { display: none; }
+  .entry__leaf-back { background-image: url('/images/madera/entry/leaf-mobile-331.webp'); }
+}
+@media (max-width: 359px) {
+  .entry__sticky { --text-zone: calc(var(--header-h) + 230px); }
+  .entry__text { padding-inline: 18px; }
+  .entry__title { font-size: 30px; }
+  .entry__lead--mobile { font-size: 13px; }
+  .entry__actions { gap: 12px; }
+  .entry__actions .btn--primary { padding-inline: 14px; }
+  .entry__handle-label { display: none; }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  .entry__text { padding-top: calc(var(--header-h) + 12px); }
+  .entry__title { font-size: 33px; margin: 6px 0 12px; }
+  .entry__title em { font-size: 1.15em; }
+  .entry__lead { font-size: 14px; max-width: 330px; line-height: 1.45; }
+  .entry__actions { margin-top: 14px; }
+  .entry__actions .btn--primary { min-height: 44px; }
+  .entry__signature, .entry__handle-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entry, .entry--static { height: auto; }
+  .entry__sticky { position: relative; }
+  .entry__moving-shadow { display: none; }
+}
+
+/* Odvojena široka scena: desktop ulazi u cijeli prostor, a ne u uspravnu karticu. */
+.corridor__spots li { left: var(--spot-x); top: var(--spot-y); }
+.corridor__spot { background: rgb(43 33 23 / 18%); backdrop-filter: blur(4px); }
+@container (orientation: landscape) {
+  .corridor { --fh: calc(100svh - var(--header-h)); --pw: max(100cqw, calc(var(--fh) * 1.7768)); --ph: calc(var(--pw) / 1.7768); }
+  .corridor__ambient { display: none; }
+  .corridor__frame { left: 0; right: 0; width: auto; box-shadow: none; }
+  .corridor__photo { width: var(--pw); height: var(--ph); top: calc((var(--fh) - var(--ph)) / 2); }
+  .corridor__head { top: max(3%, calc((var(--ph) - var(--fh)) / 2 + 20px)); padding-inline: 24%; }
+  .corridor__title { max-width: 12em; font-size: clamp(40px, 4.5cqw, 68px); line-height: 1.06; }
+  .corridor__eyebrow { font-size: 11px; }
+  .corridor__spots li { left: var(--spot-desktop-x); top: var(--spot-desktop-y); }
+  .corridor__frame::after { height: 20%; }
+  .corridor__foot { left: 0; right: 0; width: auto; padding-bottom: 28px; gap: 10px; }
+  .corridor__cta { width: 285px; min-height: 50px; font: 600 14px 'Manrope Variable', sans-serif; border-radius: 5px; }
+  .corridor__foot p { font-size: 13px; }
+}
+@container (orientation: landscape) and (max-height: 560px) {
+  .corridor__head { padding-inline: 22%; top: max(3%, calc((var(--ph) - var(--fh)) / 2 + 10px)); }
+  .corridor__eyebrow { display: none; }
+  .corridor__title { font-size: 32px; }
+  .corridor__foot { padding-bottom: 16px; }
+  .corridor__foot p { display: none; }
+  .corridor__cta { min-height: 42px; }
+}
