@@ -7,6 +7,13 @@ import type { Product } from '../types';
 import { ProductPicture } from './Picture';
 
 const INITIAL_COUNT = 6;
+const COLLECTIONS: { label: string; filter: CatalogFilter; productId: string; detail: string }[] = [
+  { label: 'Bijela i moderna', filter: 'Moderna', productId: 'olimpus-bijeli', detail: 'Čiste linije, vaš izbor detalja' },
+  { label: 'Prirodni furnir', filter: 'Furnir', productId: 'hrast-furnir-h', detail: 'Toplina i tekstura drveta' },
+  { label: 'Vrata sa staklom', filter: 'Staklo', productId: 'antracit-staklo-mreza', detail: 'Svjetlo između prostorija' },
+  { label: 'Klizna vrata', filter: 'Klizna', productId: 'klizna-staklo', detail: 'Drugačiji način otvaranja' },
+  { label: 'Skrivena vrata', filter: 'Skrivena', productId: 'skrivena-siva', detail: 'U ravnini vašeg zida' },
+];
 
 export function recordLabel(p: Product): string {
   return p.recordType === 'named_model' ? 'Primjer modela' : 'Izvedba po želji';
@@ -67,10 +74,25 @@ export function Catalog() {
     <section className="section catalog" id="modeli" aria-labelledby="modeli-naslov">
       <div className="container">
         <div className="section__head">
-          <p className="eyebrow eyebrow--section">Modeli vrata</p>
-          <h2 id="modeli-naslov">Pronađite vrata koja pristaju vašem prostoru.</h2>
-          <p className="section__lead">Topli hrastov furnir, čiste bijele plohe, staklo s mrežom, klizna i skrivena vrata. Odaberite model i odmah ga pogledajte u 3D konfiguratoru.</p>
+          <p className="eyebrow eyebrow--section">01 · Pronađite svoj stil</p>
+          <h2 id="modeli-naslov">Jedan dom. Mnogo mogućnosti.</h2>
+          <p className="section__lead">Prvo pogledajte šta izrađujemo. Odaberite vrstu vrata, istražite modele i tek onda prilagodite boju, kvaku i mjere.</p>
         </div>
+        <ul className="collections" aria-label="Vrste vrata u ponudi">
+          {COLLECTIONS.map((c) => {
+            const p = products.find((product) => product.id === c.productId)!;
+            return (
+              <li key={c.filter}>
+                <button type="button" className="collection" aria-pressed={filter === c.filter} aria-label={`Pregledaj kolekciju: ${c.label}`} onClick={() => setFilter(c.filter)}>
+                  <span className="collection__image"><ProductPicture src={p.image} alt="" sizes="(max-width: 599px) 70vw, 250px" /></span>
+                  <span className="collection__name">{c.label}<span aria-hidden="true">↗</span></span>
+                  <span className="collection__detail">{c.detail}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="catalog__index"><h3>Pregled modela i izvedbi</h3><span>Od modela do ponude, korak po korak.</span></div>
         <div className="filters" role="group" aria-label="Filtriraj vrata">
           {CATALOG_FILTERS.map((f) => (
             <button

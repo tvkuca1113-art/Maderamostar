@@ -26,12 +26,12 @@ export default function App({ initialState }: { initialState?: State }) {
         <Header />
         <main id="sadrzaj">
           <Entry />
-          <Welcome />
-          <QuickCalculator />
           <Catalog />
           <Configurator />
+          <QuickCalculator />
           <Project />
           <Works />
+          <Welcome />
           <Process />
           <Faq />
           <Contact />

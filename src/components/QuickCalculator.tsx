@@ -21,7 +21,7 @@ export function plannerTitle(): string {
  */
 export function QuickCalculator() {
   const { state, dispatch } = useStore();
-  const { openInquiry, goTo } = useUi();
+  const { openInquiry, openProduct, goTo } = useUi();
   const { draft, items, location } = state;
   const [submitted, setSubmitted] = useState(false);
   const errors = useMemo(() => validateConfig(draft), [draft]);
@@ -44,6 +44,7 @@ export function QuickCalculator() {
       <div className="container">
         <div className="calc__bar">
           <div className="calc__intro">
+            <p className="eyebrow eyebrow--section">03 · Vrata za cijeli dom</p>
             <h2 id="kalkulator-naslov" className="calc__title">
               {plannerTitle()}
             </h2>
@@ -53,6 +54,10 @@ export function QuickCalculator() {
                 ? 'Odaberite vrata i osnovne mjere za informativnu procjenu.'
                 : 'Za koliko prostorija tražite vrata? Unesite model, broj vrata i mjesto — pregled za ponudu je spreman u nekoliko koraka.'}
             </p>
+            {product && <button type="button" className="planner-choice" onClick={() => openProduct(product.id)} aria-label={`Pogledaj odabrani model u planeru: ${product.displayName}`}>
+              <img src={product.image} alt="" width={76} height={100} loading="lazy" />
+              <span><small>Vaš odabrani model</small><strong>{product.displayName}</strong><span>Pogledaj detalje ↗</span></span>
+            </button>}
           </div>
           <form className="calc__form" onSubmit={onSubmit} noValidate>
             <div className="field calc__model">

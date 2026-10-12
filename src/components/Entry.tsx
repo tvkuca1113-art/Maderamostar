@@ -22,27 +22,27 @@ function HeroPicture({ className }: { className?: string }) {
       <source
         media="(max-width: 767px)"
         type="image/avif"
-        srcSet="/images/madera/entry-v2/hero-mobile-640.avif 640w, /images/madera/entry-v2/hero-mobile-1024.avif 1024w"
+        srcSet="/images/madera/entry-v3/hero-mobile-640.avif 640w, /images/madera/entry-v3/hero-mobile-1024.avif 1024w"
         sizes="150vw"
       />
       <source
         media="(max-width: 767px)"
         type="image/webp"
-        srcSet="/images/madera/entry-v2/hero-mobile-640.webp 640w, /images/madera/entry-v2/hero-mobile-1024.webp 1024w"
+        srcSet="/images/madera/entry-v3/hero-mobile-640.webp 640w, /images/madera/entry-v3/hero-mobile-1024.webp 1024w"
         sizes="150vw"
       />
-      <source media="(max-width: 767px)" srcSet="/images/madera/entry-v2/hero-mobile-1024.webp" />
+      <source media="(max-width: 767px)" srcSet="/images/madera/entry-v3/hero-mobile-1024.webp" />
       <source
         type="image/avif"
-        srcSet="/images/madera/entry-v2/hero-desktop-960.avif 960w, /images/madera/entry-v2/hero-desktop-1440.avif 1440w, /images/madera/entry-v2/hero-desktop-1672.avif 1672w"
+        srcSet="/images/madera/entry-v3/hero-desktop-960.avif 960w, /images/madera/entry-v3/hero-desktop-1440.avif 1440w, /images/madera/entry-v3/hero-desktop-1659.avif 1659w"
         sizes="110vw"
       />
       <source
         type="image/webp"
-        srcSet="/images/madera/entry-v2/hero-desktop-960.webp 960w, /images/madera/entry-v2/hero-desktop-1440.webp 1440w, /images/madera/entry-v2/hero-desktop-1672.webp 1672w"
+        srcSet="/images/madera/entry-v3/hero-desktop-960.webp 960w, /images/madera/entry-v3/hero-desktop-1440.webp 1440w, /images/madera/entry-v3/hero-desktop-1659.webp 1659w"
         sizes="110vw"
       />
-      <img src="/images/madera/entry-v2/hero-desktop-1672.webp" width={1672} height={941} alt="" decoding="async" {...({ fetchpriority: 'high' } as Record<string, string>)} />
+      <img src="/images/madera/entry-v3/hero-desktop-1659.webp" width={1659} height={948} alt="" decoding="async" {...({ fetchpriority: 'high' } as Record<string, string>)} />
     </picture>
   );
 }
@@ -174,53 +174,20 @@ export function Entry() {
       sticky.dataset.stage = p >= 0.8 ? 'inside' : p > 0.012 ? 'opening' : 'closed';
     };
 
-    /* Skrol daje cilj, a animacija ga prati s prigušenjem (kao Lenis): bez trzaja kod točkića miša. */
-    const progress = () => {
-      const rect = section.getBoundingClientRect();
-      const total = Math.max(1, rect.height - sticky.offsetHeight);
-      return reduced ? 0 : clamp01(-rect.top / total);
-    };
-    let current = progress();
-    let target = current;
-    let raf = 0;
-    let last = 0;
-    drive.current = (p) => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-      last = 0;
-      current = target = p;
-      apply(p);
-    };
-    const tick = (now: number) => {
-      const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60;
-      last = now;
-      current += (target - current) * (1 - Math.exp(-dt / 0.11));
-      if (Math.abs(target - current) < 0.0004) current = target;
-      apply(current);
-      raf = current === target ? 0 : requestAnimationFrame(tick);
-      if (!raf) last = 0;
-    };
-    const onScroll = () => {
-      if (animating.current) return;
-      target = progress();
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
+    // Otvaranje je izbor posjetioca, a običan skrol odmah vodi u ponudu.
+    drive.current = apply;
     const onResize = () => {
       measure();
-      current = target = animating.current ? pose.current : progress();
-      apply(current);
+      apply(reduced ? 0 : pose.current);
     };
     // Mjerenje tek kad se slika učita (stvarne dimenzije scene).
     const img = sticky.querySelector('img');
     if (img && !img.complete) img.addEventListener('load', onResize, { once: true });
     onResize();
-    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     return () => {
-      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       img?.removeEventListener('load', onResize);
-      if (raf) cancelAnimationFrame(raf);
       drive.current = null;
     };
   }, [reduced]);
@@ -231,12 +198,9 @@ export function Entry() {
     if (!section || animating.current) return;
     const heading = () => document.getElementById('hodnik-naslov');
     if (reduced) {
-      heading()?.scrollIntoView({ block: 'start' });
-      heading()?.focus({ preventScroll: true });
+      goTo('modeli');
       return;
     }
-    const sticky = stickyRef.current;
-    const travel = section.offsetHeight - (sticky?.offsetHeight ?? window.innerHeight);
     const start = pose.current;
     const end = Math.max(start, 0.93);
     const duration = 2800;
@@ -252,11 +216,11 @@ export function Entry() {
     };
     const cancel = () => {
       stop();
-      // Na prekidu poravnati skrol s upravo prikazanim položajem, bez vraćanja zatvorenih vrata.
-      window.scrollTo({ top: section.offsetTop + travel * pose.current, behavior: 'instant' });
+      drive.current?.(0.93);
     };
     const interruptKey = (e: KeyboardEvent) => {
-      if (['Escape', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) cancel();
+      if (e.key === 'Escape') { stop(); drive.current?.(0); }
+      else if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) cancel();
     };
     cancelPlayback.current = stop;
     window.addEventListener('wheel', cancel, { once: true, passive: true });
@@ -266,11 +230,9 @@ export function Entry() {
       if (!animating.current) return;
       const k = Math.min(1, (now - t0) / duration);
       const e = ease(k);
-      // Klik animira scenu direktno. Skrol se poravna samo na kraju, umjesto preslagivanja stranice u svakom kadru.
       drive.current?.(start + (end - start) * e);
       if (k < 1) playback.current = requestAnimationFrame(step);
       else {
-        window.scrollTo({ top: section.offsetTop + travel * end, behavior: 'instant' });
         stop();
         // Kraj animacije: hodnik je na ekranu, fokus na njegov naslov (tastatura i čitači ekrana nastavljaju odatle).
         window.setTimeout(() => heading()?.focus({ preventScroll: true }), 450);
@@ -305,16 +267,12 @@ export function Entry() {
           <div className="entry__hinge">
             <span className="entry__ao" />
             <div className="entry__leaf">
-              <picture className="entry__leaf-photo">
-                <source media="(max-width: 767px)" type="image/avif" srcSet="/images/madera/entry/leaf-mobile-331.avif" />
-                <source media="(max-width: 767px)" type="image/webp" srcSet="/images/madera/entry/leaf-mobile-331.webp" />
-                <source type="image/avif" srcSet="/images/madera/entry/leaf-desktop-308.avif" />
-                <img src="/images/madera/entry/leaf-desktop-308.webp" width={308} height={745} alt="" decoding="async" />
-              </picture>
-              <picture className="entry__lever">
-                <source media="(max-width: 767px)" srcSet="/images/madera/entry/lever-mobile.webp" />
-                <img src="/images/madera/entry/lever-desktop.webp" width={60} height={24} alt="" decoding="async" />
-              </picture>
+              <img className="entry__leaf-photo" src="/images/madera/entry-v3/door-leaf.webp" width={400} height={1000} alt="" decoding="async" />
+              <svg className="entry__lever" viewBox="0 0 70 24" aria-hidden="true">
+                <defs><linearGradient id="gold-lever" x2="0" y2="1"><stop stopColor="#e4c478"/><stop offset=".45" stopColor="#b99140"/><stop offset="1" stopColor="#765620"/></linearGradient></defs>
+                <circle cx="12" cy="12" r="10" fill="url(#gold-lever)" stroke="#a58038"/>
+                <path d="M12 9H65Q69 9 69 12Q69 15 65 15H12Q7 15 7 12Q7 9 12 9Z" fill="url(#gold-lever)"/>
+              </svg>
               <span className="entry__leaf-shade" />
               <div className="entry__leaf-back" />
               <span className="entry__edge entry__edge--free" />
@@ -328,40 +286,41 @@ export function Entry() {
 
         <div className="entry__scene entry__scene--interaction">
           <button type="button" className="entry__handle-hit" aria-label="Otvori vrata pomoću kvake" onClick={openDoor}>
-            <span className="entry__handle-label">Dodirnite kvaku</span>
+            <span className="entry__handle-label">Otvori vrata <span aria-hidden="true">↗</span></span>
           </button>
         </div>
 
         <div className="entry__text">
           <p className="eyebrow">Madera · Sobna vrata po mjeri</p>
           <h1 id="hero-naslov" className="entry__title">
-            <span>Otvorite vrata</span>{' '}
-            <em>svom stilu.</em>
+            <span>Vaš dom.</span>{' '}
+            <em>Vaša vrata.</em>
           </h1>
           <p className="entry__lead entry__lead--desktop">
-            Od toplog hrasta do skrivenih izvedbi. Izaberite izgled svojih vrata — mi brinemo o izradi i montaži.
+            Od prirodnog furnira do vrata koja nestaju u zidu. Pronađite svoj stil, a izradu i montažu prepustite nama.
           </p>
           <p className="entry__lead entry__lead--mobile">
-            Sobna vrata po mjeri. Izrada i montaža u Hercegovini.
+            Bijela, furnir, staklena, klizna ili skrivena. Izrada i montaža po mjeri vašeg doma.
           </p>
           <div className="entry__actions">
-            <button type="button" className="btn btn--primary btn--lg" onClick={openDoor}>
-              Otvori i istraži
+            <a href="#modeli" className="btn btn--primary btn--lg" onClick={(e) => { e.preventDefault(); goTo('modeli'); }}>
+              Pogledaj vrata
               <ArrowIcon />
-            </button>
+            </a>
             <a
-              href="#modeli"
+              href="#kontakt"
               className="btn btn--ghost btn--lg"
               onClick={(e) => {
                 e.preventDefault();
-                goTo('modeli');
+                goTo('kontakt');
               }}
             >
-              Pogledaj modele
+              Zatraži savjet
             </a>
           </div>
           <p className="entry__signature"><span>Po mjeri</span><span>Po vašem ukusu</span><span>Mostar · Hercegovina</span></p>
         </div>
+        <button type="button" className="entry__return" onClick={() => { cancelPlayback.current?.(); drive.current?.(0); }}>← Početna scena</button>
 
         <button type="button" className="entry__hint" onClick={openDoor}>
           <span>Jedan pokret. Novi prostor.</span>

@@ -5,6 +5,7 @@ import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/newsreader/opsz-italic.css';
 import './styles.css';
 import './entry.css';
+import './home-v3.css';
 import App from './App';
 
 createRoot(document.getElementById('root') as HTMLElement).render(

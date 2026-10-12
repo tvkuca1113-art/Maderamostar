@@ -274,11 +274,24 @@ describe('Rezervni tokovi', () => {
 });
 
 describe('Početni ulaz i interaktivni konfigurator', () => {
+  it('kupac prvo vidi ponudu, a izbor kolekcije prenosi pravi model u konfigurator i planer', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const catalog = document.getElementById('modeli')!;
+    const planner = document.getElementById('kalkulator')!;
+    expect(catalog.compareDocumentPosition(planner) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await user.click(within(catalog).getByRole('button', { name: 'Pregledaj kolekciju: Skrivena vrata' }));
+    expect(within(catalog).getAllByRole('article')).toHaveLength(1);
+    await user.click(within(catalog).getByRole('button', { name: 'Odaberi model: Skrivena vrata' }));
+    await flush();
+    expect(within(konf()).getByRole('radio', { name: 'Skrivena vrata' })).toBeChecked();
+    expect(within(planner).getByRole('button', { name: 'Pogledaj odabrani model u planeru: Skrivena vrata' })).toBeInTheDocument();
+  });
   it('početni ekran ima logo, naslov i akciju „Otvori vrata”', () => {
     render(<App />);
     expect(screen.getAllByRole('img', { name: 'Madera' }).length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { level: 1, name: /Otvorite vrata svom stilu/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Otvori i istraži' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /Vaš dom. Vaša vrata/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Pogledaj vrata' })).toHaveAttribute('href', '#modeli');
     expect(screen.getByRole('button', { name: 'Otvori vrata pomoću kvake' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Iza dobrih vrata/ })).toBeInTheDocument();
   });
@@ -288,11 +301,11 @@ describe('Početni ulaz i interaktivni konfigurator', () => {
     const { container } = render(<App />);
     const entry = container.querySelector('#top') as HTMLElement;
     const corridor = entry.querySelector('.entry__portal .corridor__photo img');
-    const lever = entry.querySelector('.entry__lever img');
-    const leaf = entry.querySelector('.entry__leaf-photo img');
+    const lever = entry.querySelector('.entry__lever');
+    const leaf = entry.querySelector('img.entry__leaf-photo');
     expect(corridor?.getAttribute('src')).toMatch(/\/images\/madera\/entry\/hodnik-1024\.webp$/);
     expect(corridor?.getAttribute('alt')).toMatch(/hodnik s troje vrata/);
-    expect(lever?.getAttribute('alt')).toBe('');
+    expect(lever?.getAttribute('aria-hidden')).toBe('true');
     expect(leaf?.getAttribute('alt')).toBe('');
     expect(within(entry).getByRole('heading', { level: 2, name: 'Pronađite svoj stil.' })).toBeInTheDocument();
     expect(within(entry).getByRole('button', { name: /Hrast: istražite model Hrast furnir H/ })).toBeInTheDocument();

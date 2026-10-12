@@ -3,8 +3,8 @@ import { pricing } from '../data';
 import { isPricingActive } from '../lib/pricing';
 
 export const NAV = [
-  { href: '#modeli', label: 'Modeli' },
-  { href: '#konfigurator', label: 'Konfigurator' },
+  { href: '#modeli', label: 'Ponuda vrata' },
+  { href: '#konfigurator', label: 'Prilagodi vrata' },
   { href: '#radovi', label: 'Naši radovi' },
   { href: '#kontakt', label: 'Kontakt' },
 ];
@@ -73,8 +73,8 @@ export function Header() {
             ))}
           </ul>
         </nav>
-        <a href="#kalkulator" className="btn btn--primary btn--sm site-header__cta">
-          {calcLabel()}
+        <a href="#kontakt" className="btn btn--primary btn--sm site-header__cta">
+          Zatraži savjet
           <ArrowIcon />
         </a>
         <button

@@ -151,6 +151,7 @@ export function Configurator() {
     <section className="section configurator" id="konfigurator" aria-labelledby="konfigurator-naslov">
       <div className="container">
         <div className="section__head">
+          <p className="eyebrow eyebrow--section">02 · Prilagodite svoj model</p>
           <h2 id="konfigurator-naslov">Složite svoja vrata.</h2>
           <p className="section__lead">Promijenite boju, kvaku, smjer i mjere — 3D prikaz se mijenja odmah. Otvorite vrata, priđite kvaki ili ih pogledajte s druge strane.</p>
         </div>
