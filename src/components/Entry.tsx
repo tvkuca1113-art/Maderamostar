@@ -5,10 +5,10 @@ import { ArrowIcon } from './Header';
 
 /**
  * Početni ekran „Otvori vrata”: fotografija ambijenta s logom i menijem preko nje.
- * Na skrol ili klik kvaka se spusti, brava „škljocne”, krilo se otvara oko baglama (desno, kvaka lijevo kao na originalu),
+ * Na klik kvaka se spusti, brava „škljocne”, krilo se otvara oko baglama (desno, kvaka lijevo kao na originalu),
  * kamera se okrene prema otvoru i prođe kroz vrata u ostatak stranice.
  * Tehnika „portala”: fotografija se nikad ne uvećava do mutnoće — soba iza vrata (render istim materijalima i suncem)
- * je zaseban oštar sloj izrezan na oblik otvora, a kretanje prati skrol s prigušenjem (glatko i na točkiću miša).
+ * je zaseban oštar sloj izrezan na oblik otvora. Običan skrol vodi direktno u ponudu.
  */
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));

@@ -14,7 +14,9 @@
 .entry__handle-label { font-size: 12px; font-weight: 600; top: 50%; right: calc(100% + 15px); background: rgb(248 246 240 / 88%); border: 1px solid rgb(150 129 100 / 24%); padding: 10px 14px; border-radius: 3px; color: #645338; opacity: 1; }
 .entry__handle-label::after { display: none; }
 .entry__lever { overflow: visible; }
-.entry__leaf-photo { object-fit: fill; filter: none; left: -11.646%; top: -.407%; width: 123.137%; height: 100.865%; clip-path: inset(.403% 9.332% .454% 9.458%); }
+/* The alpha margins require oversizing. The global img max-width:100% would
+   shrink the face and expose the room beside the fixed hinge before it moves. */
+.entry__leaf-photo { object-fit: fill; filter: none; max-width: none; left: -11.646%; top: -.407%; width: 123.137%; height: 100.865%; clip-path: inset(.403% 9.332% .454% 9.458%); }
 .entry__sticky[data-stage='closed'] .entry__leaf { visibility: hidden; }
 .entry__sticky[data-stage='closed'] .entry__portal { visibility: hidden; }
 .entry__leaf-back { background: linear-gradient(90deg, #c5c0b6, #eeede7 15%, #e9e8e2); filter: none; }
